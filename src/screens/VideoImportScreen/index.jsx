@@ -1,7 +1,11 @@
 import React from 'react';
 import ImportInterface from './components/ImportInterface';
 
+console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen loading...');
+
 const VideoImportScreen = () => {
+  console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component rendering...');
+  
   return (
     <div style={{ 
       display: 'flex', 
@@ -15,4 +19,5 @@ const VideoImportScreen = () => {
   );
 };
 
+console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component defined, exporting...');
 export default VideoImportScreen;

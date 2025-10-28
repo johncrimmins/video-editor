@@ -1,13 +1,20 @@
 import React from 'react';
 import useFileImport from '../hooks/useFileImport';
 
+console.log('🔧 ImportInterface.jsx: ImportInterface component loading...');
+
 const ImportInterface = () => {
+  console.log('🔧 ImportInterface.jsx: ImportInterface component rendering...');
+  
   const { selectedFile, isLoading, error, selectFile, clearFile } = useFileImport();
+  console.log('🔧 ImportInterface.jsx: Hook state - selectedFile:', selectedFile, 'isLoading:', isLoading, 'error:', error);
 
   const handleFilePicker = () => {
+    console.log('🔧 ImportInterface.jsx: File picker button clicked');
     selectFile();
   };
 
+  console.log('🔧 ImportInterface.jsx: Returning JSX...');
   return (
     <div style={{
       textAlign: 'center',
