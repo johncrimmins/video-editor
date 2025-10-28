@@ -2,6 +2,11 @@ import { app, BrowserWindow, ipcMain, dialog, protocol } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
+import ffprobe from 'ffprobe-static';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -140,6 +145,14 @@ const setupIpcHandlers = () => {
         created: stats.birthtime
       };
       
+      // Extract video duration if it's a video file
+      if (ext === '.mp4' || ext === '.mov') {
+        console.log('🖥️ main.js: Video file detected, extracting duration...');
+        const duration = await getVideoDuration(filePath);
+        fileInfo.duration = duration;
+        console.log('🖥️ main.js: Added duration to file info:', duration);
+      }
+      
       console.log('🖥️ main.js: File info:', fileInfo);
       return fileInfo;
     } catch (error) {
@@ -188,5 +201,20 @@ const getMimeType = (extension) => {
     '.mov': 'video/quicktime'
   };
   return mimeTypes[extension.toLowerCase()] || 'application/octet-stream';
+};
+
+// Extract video duration using ffprobe
+const getVideoDuration = async (filePath) => {
+  console.log('🖥️ main.js: Getting video duration for:', filePath);
+  try {
+    const command = `"${ffprobe.path}" -v quiet -show_entries format=duration -of csv="p=0" "${filePath}"`;
+    const { stdout } = await execAsync(command);
+    const duration = parseFloat(stdout.trim());
+    console.log('🖥️ main.js: Video duration:', duration, 'seconds');
+    return isNaN(duration) ? 0 : duration;
+  } catch (error) {
+    console.error('🖥️ main.js: Error getting video duration:', error);
+    return 0;
+  }
 };
 
