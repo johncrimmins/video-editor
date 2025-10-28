@@ -3,8 +3,9 @@ import ImportInterface from './components/ImportInterface';
 
 console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen loading...');
 
-const VideoImportScreen = () => {
+const VideoImportScreen = ({ onVideoSelected }) => {
   console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component rendering...');
+  console.log('📹 VideoImportScreen/index.jsx: onVideoSelected prop:', onVideoSelected);
   
   return (
     <div style={{ 
@@ -14,7 +15,7 @@ const VideoImportScreen = () => {
       height: '100vh',
       fontFamily: 'Arial, sans-serif'
     }}>
-      <ImportInterface />
+      <ImportInterface onVideoSelected={onVideoSelected} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, protocol } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
@@ -38,11 +38,44 @@ const createWindow = () => {
   console.log('🖥️ main.js: Window setup complete');
 };
 
+// Register custom protocol for serving local video files
+const setupCustomProtocol = () => {
+  console.log('🖥️ main.js: Setting up custom protocol...');
+  
+  // Register custom protocol for serving local files
+  protocol.registerFileProtocol('app', (request, callback) => {
+    console.log('🖥️ main.js: Custom protocol request:', request.url);
+    
+    try {
+      // Parse the URL properly to get the file path
+      const url = new URL(request.url);
+      const filePath = decodeURIComponent(url.pathname);
+      console.log('🖥️ main.js: Parsed file path:', filePath);
+      
+      // Check if file exists before serving
+      if (fs.existsSync(filePath)) {
+        console.log('🖥️ main.js: File exists, serving:', filePath);
+        callback({ path: filePath });
+      } else {
+        console.error('🖥️ main.js: File not found:', filePath);
+        callback({ error: -6 }); // ERR_FILE_NOT_FOUND
+      }
+    } catch (error) {
+      console.error('🖥️ main.js: Protocol error:', error);
+      callback({ error: -6 }); // ERR_FILE_NOT_FOUND
+    }
+  });
+  
+  console.log('🖥️ main.js: Custom protocol registered successfully');
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   console.log('🖥️ main.js: Electron app ready, setting up...');
+  setupCustomProtocol();
+  console.log('🖥️ main.js: Custom protocol setup complete');
   setupIpcHandlers();
   console.log('🖥️ main.js: IPC handlers setup complete');
   createWindow();

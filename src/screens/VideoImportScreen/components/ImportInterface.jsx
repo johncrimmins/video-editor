@@ -3,8 +3,9 @@ import useFileImport from '../hooks/useFileImport';
 
 console.log('🔧 ImportInterface.jsx: ImportInterface component loading...');
 
-const ImportInterface = () => {
+const ImportInterface = ({ onVideoSelected }) => {
   console.log('🔧 ImportInterface.jsx: ImportInterface component rendering...');
+  console.log('🔧 ImportInterface.jsx: onVideoSelected prop:', onVideoSelected);
   
   const { selectedFile, isLoading, error, selectFile, clearFile } = useFileImport();
   console.log('🔧 ImportInterface.jsx: Hook state - selectedFile:', selectedFile, 'isLoading:', isLoading, 'error:', error);
@@ -12,6 +13,16 @@ const ImportInterface = () => {
   const handleFilePicker = () => {
     console.log('🔧 ImportInterface.jsx: File picker button clicked');
     selectFile();
+  };
+
+  const handleContinueToPreview = () => {
+    console.log('🔧 ImportInterface.jsx: Continue to preview button clicked');
+    if (onVideoSelected && selectedFile) {
+      console.log('🔧 ImportInterface.jsx: Calling onVideoSelected with file:', selectedFile);
+      onVideoSelected(selectedFile);
+    } else {
+      console.error('🔧 ImportInterface.jsx: onVideoSelected not provided or no file selected');
+    }
   };
 
   console.log('🔧 ImportInterface.jsx: Returning JSX...');
@@ -74,10 +85,25 @@ const ImportInterface = () => {
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              marginRight: '10px'
             }}
           >
             Select Different File
+          </button>
+          <button
+            onClick={handleContinueToPreview}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Continue to Preview
           </button>
         </div>
       ) : (
