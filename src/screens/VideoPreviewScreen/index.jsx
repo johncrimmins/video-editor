@@ -3,10 +3,11 @@ import VideoPlayer from './components/VideoPlayer';
 
 console.log('🎬 VideoPreviewScreen/index.jsx: VideoPreviewScreen loading...');
 
-const VideoPreviewScreen = ({ videoFile, onBackToImport }) => {
+const VideoPreviewScreen = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   console.log('🎬 VideoPreviewScreen/index.jsx: VideoPreviewScreen component rendering...');
   console.log('🎬 VideoPreviewScreen/index.jsx: videoFile prop:', videoFile);
   console.log('🎬 VideoPreviewScreen/index.jsx: onBackToImport prop:', onBackToImport);
+  console.log('🎬 VideoPreviewScreen/index.jsx: onGoToTimeline prop:', onGoToTimeline);
   
   return (
     <div style={{ 
@@ -16,7 +17,7 @@ const VideoPreviewScreen = ({ videoFile, onBackToImport }) => {
       height: '100vh',
       fontFamily: 'Arial, sans-serif'
     }}>
-      <VideoPlayer videoFile={videoFile} onBackToImport={onBackToImport} />
+      <VideoPlayer videoFile={videoFile} onBackToImport={onBackToImport} onGoToTimeline={onGoToTimeline} />
     </div>
   );
 };

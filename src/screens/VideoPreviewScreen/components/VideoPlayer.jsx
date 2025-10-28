@@ -3,10 +3,11 @@ import useVideoPlayer from '../hooks/useVideoPlayer';
 
 console.log('🎥 VideoPlayer.jsx: VideoPlayer component loading...');
 
-const VideoPlayer = ({ videoFile, onBackToImport }) => {
+const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   console.log('🎥 VideoPlayer.jsx: VideoPlayer component rendering...');
   console.log('🎥 VideoPlayer.jsx: videoFile prop:', videoFile);
   console.log('🎥 VideoPlayer.jsx: onBackToImport prop:', onBackToImport);
+  console.log('🎥 VideoPlayer.jsx: onGoToTimeline prop:', onGoToTimeline);
   
   const { videoUrl, isVideoReady } = useVideoPlayer(videoFile);
   console.log('🎥 VideoPlayer.jsx: Hook state - videoUrl:', videoUrl, 'isVideoReady:', isVideoReady);
@@ -18,6 +19,16 @@ const VideoPlayer = ({ videoFile, onBackToImport }) => {
       onBackToImport();
     } else {
       console.error('🎥 VideoPlayer.jsx: onBackToImport not provided');
+    }
+  };
+
+  const handleGoToTimeline = () => {
+    console.log('🎥 VideoPlayer.jsx: Go to timeline button clicked');
+    if (onGoToTimeline) {
+      console.log('🎥 VideoPlayer.jsx: Calling onGoToTimeline');
+      onGoToTimeline();
+    } else {
+      console.error('🎥 VideoPlayer.jsx: onGoToTimeline not provided');
     }
   };
 
@@ -92,21 +103,36 @@ const VideoPlayer = ({ videoFile, onBackToImport }) => {
       <p style={{ marginTop: '15px', color: '#666', fontSize: '14px' }}>
         <strong>File:</strong> {videoFile.name}
       </p>
-      <button
-        onClick={handleBackToImport}
-        style={{
-          marginTop: '15px',
-          padding: '8px 16px',
-          fontSize: '14px',
-          backgroundColor: '#6c757d',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Back to Import
-      </button>
+      <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
+        <button
+          onClick={handleGoToTimeline}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Go to Timeline
+        </button>
+        <button
+          onClick={handleBackToImport}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Back to Import
+        </button>
+      </div>
     </div>
   );
 };
