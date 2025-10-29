@@ -14,13 +14,11 @@ import { Card, CardContent } from '../../shared/ui/shadcn';
  */
 const TimelineScreenV2 = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   useEffect(() => {
-    console.log('🎬 TimelineScreenV2: Component mounted');
-    console.log('🎬 TimelineScreenV2: videoFile:', videoFile);
+    // Component mounted
   }, [videoFile]);
   
   // Check for invalid video duration before proceeding
   if (!videoFile?.duration || videoFile.duration <= 0) {
-    console.log('🎬 TimelineScreenV2: Invalid video duration detected');
     return (
       <EditorScreen>
         <div className="flex flex-col justify-center items-center h-full p-xl text-center">
@@ -42,8 +40,6 @@ const TimelineScreenV2 = ({ videoFile, onBackToPreview, onDeleteClip }) => {
       </EditorScreen>
     );
   }
-  
-  console.log('🎬 TimelineScreenV2: Valid video, rendering timeline');
   
   const { trimPoints, updateTrimPoint } = useTimeline(videoFile);
   const { applyTrim } = useTrim(videoFile, trimPoints);

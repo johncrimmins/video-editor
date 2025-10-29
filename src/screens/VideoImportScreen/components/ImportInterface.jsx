@@ -3,31 +3,20 @@ import useFileImport from '../hooks/useFileImport';
 import { Button, Card, ErrorMessage } from '../../../shared/ui';
 import { formatFileSize } from '../../../shared/domains/file';
 
-console.log('🔧 ImportInterface.jsx: ImportInterface component loading...');
-
 const ImportInterface = ({ onVideoSelected }) => {
-  console.log('🔧 ImportInterface.jsx: ImportInterface component rendering...');
-  console.log('🔧 ImportInterface.jsx: onVideoSelected prop:', onVideoSelected);
-  
   const { selectedFile, isLoading, error, selectFile, clearFile } = useFileImport();
-  console.log('🔧 ImportInterface.jsx: Hook state - selectedFile:', selectedFile, 'isLoading:', isLoading, 'error:', error);
 
   const handleFilePicker = () => {
-    console.log('🔧 ImportInterface.jsx: File picker button clicked');
     selectFile();
   };
 
   const handleContinueToPreview = () => {
-    console.log('🔧 ImportInterface.jsx: Continue to preview button clicked');
     if (onVideoSelected && selectedFile) {
-      console.log('🔧 ImportInterface.jsx: Calling onVideoSelected with file:', selectedFile);
       onVideoSelected(selectedFile);
     } else {
       console.error('🔧 ImportInterface.jsx: onVideoSelected not provided or no file selected');
     }
   };
-
-  console.log('🔧 ImportInterface.jsx: Returning JSX...');
   return (
     <Card variant="dashed" className="min-w-75">
       <h2 className="mb-xl text-text">

@@ -2,7 +2,6 @@
  * File utility functions for file manipulation
  */
 
-console.log('📦 fileUtils.js: File utilities loading...');
 
 /**
  * Gets the file extension from a filename
@@ -45,10 +44,7 @@ export const formatFileSize = (bytes) => {
  * @returns {boolean} - True if valid video file
  */
 export const isValidVideoFile = (filename) => {
-  console.log('📦 fileUtils.js: isValidVideoFile called with filename:', filename);
-  
   if (!filename) {
-    console.log('📦 fileUtils.js: No filename provided, invalid');
     return false;
   }
   
@@ -56,7 +52,6 @@ export const isValidVideoFile = (filename) => {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   const isValid = validExtensions.includes(extension);
   
-  console.log('📦 fileUtils.js: File extension:', extension, 'Valid:', isValid);
   return isValid;
 };
 

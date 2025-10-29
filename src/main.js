@@ -15,8 +15,6 @@ if (started) {
 }
 
 const createWindow = () => {
-  console.log('🚀 Main Process: Creating browser window...');
-  
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1200,
@@ -31,16 +29,12 @@ const createWindow = () => {
   // - Dev: MAIN_WINDOW_VITE_DEV_SERVER_URL is set (e.g., http://localhost:5173)
   // - Production: Renderer is built to .vite/renderer/{MAIN_WINDOW_VITE_NAME}/index.html inside ASAR
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    console.log('🔧 Main Process: Development mode - loading from Vite dev server');
-    console.log('🔧 Main Process: URL:', MAIN_WINDOW_VITE_DEV_SERVER_URL);
     // Development mode: Load from Vite dev server
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     
     // Open DevTools automatically in development
-    console.log('🔧 Main Process: Opening DevTools...');
     mainWindow.webContents.openDevTools();
   } else {
-    console.log('📦 Main Process: Production mode - loading from packaged renderer');
     // Production mode: Load from packaged renderer inside ASAR
     // Structure: .vite/build/main.js (__dirname) -> .vite/renderer/{name}/index.html
     const indexPath = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
@@ -75,20 +69,14 @@ const setupCustomProtocol = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  console.log('⚡ Main Process: Electron app ready');
-  console.log('⚡ Main Process: Setting up custom protocol...');
   setupCustomProtocol();
-  console.log('⚡ Main Process: Setting up IPC handlers...');
   setupIpcHandlers();
-  console.log('⚡ Main Process: Creating main window...');
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on('activate', () => {
-    console.log('🔄 Main Process: App activated');
     if (BrowserWindow.getAllWindows().length === 0) {
-      console.log('🔄 Main Process: No windows open, creating new window');
       createWindow();
     }
   });
@@ -105,14 +93,10 @@ app.on('window-all-closed', () => {
 
 // IPC Handlers for file operations
 const setupIpcHandlers = () => {
-  console.log('📡 Main Process: Setting up IPC handlers');
-  
   // Handle file dialog
   ipcMain.handle('show-open-dialog', async (event, options) => {
-    console.log('📂 Main Process IPC: show-open-dialog called');
     try {
       const result = await dialog.showOpenDialog(options);
-      console.log('📂 Main Process IPC: Dialog result:', result.canceled ? 'Canceled' : `Selected: ${result.filePaths[0]}`);
       return result;
     } catch (error) {
       console.error('📂 Main Process IPC: Error in show-open-dialog:', error);
@@ -122,7 +106,6 @@ const setupIpcHandlers = () => {
 
   // Handle get file info
   ipcMain.handle('get-file-info', async (event, filePath) => {
-    console.log('📄 Main Process IPC: get-file-info called for:', filePath);
     try {
       if (!filePath || typeof filePath !== 'string') {
         throw new Error('Invalid file path');
@@ -143,13 +126,10 @@ const setupIpcHandlers = () => {
       
       // Extract video duration if it's a video file
       if (ext === '.mp4' || ext === '.mov') {
-        console.log('🎬 Main Process IPC: Extracting video duration...');
         const duration = await getVideoDuration(filePath);
         fileInfo.duration = duration;
-        console.log('🎬 Main Process IPC: Duration extracted:', duration, 'seconds');
       }
       
-      console.log('📄 Main Process IPC: File info retrieved successfully');
       return fileInfo;
     } catch (error) {
       console.error('📄 Main Process IPC: Error in get-file-info:', error);
@@ -184,10 +164,6 @@ const setupIpcHandlers = () => {
 
   // Handle trim video
   ipcMain.handle('trim-video', async (event, { inputPath, outputPath, startTime, duration }) => {
-    console.log('✂️ Main Process IPC: trim-video called');
-    console.log('✂️ Main Process IPC: Input:', inputPath);
-    console.log('✂️ Main Process IPC: Output:', outputPath);
-    console.log('✂️ Main Process IPC: Start time:', startTime, 'Duration:', duration);
     try {
       if (!inputPath || !outputPath || startTime === undefined || duration === undefined) {
         throw new Error('Invalid trim parameters');
@@ -206,7 +182,6 @@ const setupIpcHandlers = () => {
       const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
       const command = `"${systemFfmpeg}" -ss ${clampedStartTime} -i "${inputPath}" -t ${duration} -c:v libx264 -preset veryfast -crf 23 -c:a aac -b:a 128k "${outputPath}"`;
       
-      console.log('✂️ Main Process IPC: Executing FFmpeg command...');
       // Execute FFmpeg command
       await execAsync(command);
       
@@ -215,15 +190,12 @@ const setupIpcHandlers = () => {
         throw new Error('Output file was not created');
       }
       
-      console.log('✂️ Main Process IPC: Trim successful, output file created');
       return { success: true, outputPath };
     } catch (error) {
       console.error('✂️ Main Process IPC: Error in trim-video:', error);
       throw error;
     }
   });
-  
-  console.log('📡 Main Process: IPC handlers setup complete');
 };
 
 // Helper function to get MIME type from extension

@@ -7,11 +7,6 @@ import VideoPlayer from './components/VideoPlayer';
  * Provides video preview functionality with player controls
  */
 const VideoPreviewScreen = ({ videoFile, onBackToImport, onGoToTimeline }) => {
-  console.log('🎬 VideoPreviewScreen: VideoPreviewScreen component rendering...');
-  console.log('🎬 VideoPreviewScreen: videoFile prop:', videoFile);
-  console.log('🎬 VideoPreviewScreen: onBackToImport prop:', onBackToImport);
-  console.log('🎬 VideoPreviewScreen: onGoToTimeline prop:', onGoToTimeline);
-  
   return (
     <VideoScreen>
       <VideoPlayer videoFile={videoFile} onBackToImport={onBackToImport} onGoToTimeline={onGoToTimeline} />

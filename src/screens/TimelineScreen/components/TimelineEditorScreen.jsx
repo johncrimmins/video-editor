@@ -13,19 +13,13 @@ import { Card, CardContent } from '../../../shared/ui/shadcn';
  * Only calls timeline-related hooks - consistent every render
  */
 const TimelineEditorScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
-  console.log('🎬 TimelineEditorScreen: Component rendering with videoFile:', videoFile);
-  
   // Only these hooks - consistent every render
   const { trimPoints, updateTrimPoint } = useTimeline(videoFile);
   const { applyTrim } = useTrim(videoFile, trimPoints);
   const [currentVideoFile, setCurrentVideoFile] = useState(videoFile);
   
-  console.log('🎬 TimelineEditorScreen: All hooks called successfully');
-  console.log('🎬 TimelineEditorScreen: Timeline states - trimPoints:', trimPoints, 'currentVideoFile:', currentVideoFile);
-  
   // Check for invalid video duration before proceeding
   if (!videoFile?.duration || videoFile.duration <= 0) {
-    console.log('🎬 TimelineEditorScreen: Invalid video duration:', videoFile?.duration);
     return (
       <EditorScreen>
         <div className="flex flex-col justify-center items-center h-full p-xl text-center">
@@ -48,18 +42,13 @@ const TimelineEditorScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
     );
   }
   
-  console.log('🎬 TimelineEditorScreen: Video file valid, showing timeline editor');
   
   const handleApplyTrim = async () => {
-    console.log('🎬 TimelineEditorScreen: handleApplyTrim called');
     try {
-      console.log('🎬 TimelineEditorScreen: Calling applyTrim...');
       const result = await applyTrim();
-      console.log('🎬 TimelineEditorScreen: ApplyTrim result:', result);
       
       // Update video file with trimmed version
       if (result.outputPath) {
-        console.log('🎬 TimelineEditorScreen: Updating currentVideoFile with trimmed version:', result.outputPath);
         setCurrentVideoFile({
           ...currentVideoFile,
           path: result.outputPath,
@@ -73,14 +62,10 @@ const TimelineEditorScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   };
   
   const handleDeleteClip = () => {
-    console.log('🎬 TimelineEditorScreen: handleDeleteClip called');
     if (onDeleteClip) {
-      console.log('🎬 TimelineEditorScreen: Calling onDeleteClip');
       onDeleteClip();
     }
   };
-  
-  console.log('🎬 TimelineEditorScreen: Rendering timeline editor with currentVideoFile:', currentVideoFile);
   
   return (
     <EditorScreen>

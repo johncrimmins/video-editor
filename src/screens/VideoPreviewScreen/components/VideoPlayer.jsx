@@ -2,21 +2,11 @@ import React from 'react';
 import useVideoPlayer from '../hooks/useVideoPlayer';
 import { Button, Card, VideoElement } from '../../../shared/ui';
 
-console.log('🎥 VideoPlayer.jsx: VideoPlayer component loading...');
-
 const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
-  console.log('🎥 VideoPlayer.jsx: VideoPlayer component rendering...');
-  console.log('🎥 VideoPlayer.jsx: videoFile prop:', videoFile);
-  console.log('🎥 VideoPlayer.jsx: onBackToImport prop:', onBackToImport);
-  console.log('🎥 VideoPlayer.jsx: onGoToTimeline prop:', onGoToTimeline);
-  
   const { videoUrl, isVideoReady } = useVideoPlayer(videoFile);
-  console.log('🎥 VideoPlayer.jsx: Hook state - videoUrl:', videoUrl, 'isVideoReady:', isVideoReady);
 
   const handleBackToImport = () => {
-    console.log('🎥 VideoPlayer.jsx: Back to import button clicked');
     if (onBackToImport) {
-      console.log('🎥 VideoPlayer.jsx: Calling onBackToImport');
       onBackToImport();
     } else {
       console.error('🎥 VideoPlayer.jsx: onBackToImport not provided');
@@ -24,9 +14,7 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   };
 
   const handleGoToTimeline = () => {
-    console.log('🎥 VideoPlayer.jsx: Go to timeline button clicked');
     if (onGoToTimeline) {
-      console.log('🎥 VideoPlayer.jsx: Calling onGoToTimeline');
       onGoToTimeline();
     } else {
       console.error('🎥 VideoPlayer.jsx: onGoToTimeline not provided');
@@ -34,7 +22,6 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   };
 
   if (!videoFile) {
-    console.log('🎥 VideoPlayer.jsx: No video file provided, showing message');
     return (
       <Card variant="dashed" className="min-w-75">
         <h2 className="mb-xl text-text">
@@ -48,7 +35,6 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   }
 
   if (!isVideoReady) {
-    console.log('🎥 VideoPlayer.jsx: Video not ready, showing loading message');
     return (
       <Card variant="dashed" className="min-w-75">
         <h2 className="mb-xl text-text">
@@ -60,8 +46,6 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
       </Card>
     );
   }
-
-  console.log('🎥 VideoPlayer.jsx: Rendering video element with URL:', videoUrl);
   return (
     <Card variant="solid" className="min-w-96">
       <h2 className="mb-xl text-text">
@@ -69,8 +53,8 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
       </h2>
       <VideoElement 
         videoFile={videoFile}
-        onLoadStart={() => console.log('🎥 VideoPlayer.jsx: Video load started')}
-        onLoadedData={() => console.log('🎥 VideoPlayer.jsx: Video data loaded')}
+        onLoadStart={() => {}}
+        onLoadedData={() => {}}
         onError={(e) => console.error('🎥 VideoPlayer.jsx: Video error:', e)}
       />
       <p className="mt-lg text-text-secondary text-sm">
@@ -88,5 +72,4 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   );
 };
 
-console.log('🎥 VideoPlayer.jsx: VideoPlayer component defined, exporting...');
 export default VideoPlayer;

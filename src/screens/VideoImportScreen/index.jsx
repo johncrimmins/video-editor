@@ -7,9 +7,6 @@ import ImportInterface from './components/ImportInterface';
  * Provides video import functionality with file picker
  */
 const VideoImportScreen = ({ onVideoSelected }) => {
-  console.log('📹 VideoImportScreen: VideoImportScreen component rendering...');
-  console.log('📹 VideoImportScreen: onVideoSelected prop:', onVideoSelected);
-  
   return (
     <VideoScreen>
       <ImportInterface onVideoSelected={onVideoSelected} />
