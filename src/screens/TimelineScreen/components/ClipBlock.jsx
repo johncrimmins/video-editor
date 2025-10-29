@@ -3,18 +3,11 @@ import { Group, Rect } from 'react-konva';
 import { calculateClipWidth, clamp } from '../../../shared/domains/timeline';
 
 const ClipBlock = ({ videoFile, timelineWidth, yOffset = 0, onTrimStart, onTrimEnd }) => {
-  // Debug logging
-  console.log('🎯 ClipBlock: Component rendering');
-  console.log('🎯 ClipBlock: videoFile:', videoFile);
-  console.log('🎯 ClipBlock: timelineWidth:', timelineWidth);
-  
   if (!videoFile) {
-    console.log('🎯 ClipBlock: No video file, returning null');
     return null;
   }
   
   const clipWidth = calculateClipWidth(videoFile.duration, videoFile.duration, timelineWidth);
-  console.log('🎯 ClipBlock: clipWidth calculated:', clipWidth);
   
   const clipHeight = 60;
   const clipY = yOffset + 10; // Position below timeline ruler

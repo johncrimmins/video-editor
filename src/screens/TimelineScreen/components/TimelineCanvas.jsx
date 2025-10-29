@@ -10,14 +10,6 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
   
-  // Debug logging
-  useEffect(() => {
-    console.log('🎨 TimelineCanvas: Component mounted');
-    console.log('🎨 TimelineCanvas: videoFile:', videoFile);
-    console.log('🎨 TimelineCanvas: trimPoints:', trimPoints);
-    console.log('🎨 TimelineCanvas: dimensions:', dimensions);
-  }, [videoFile, trimPoints, dimensions]);
-  
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {

@@ -13,7 +13,7 @@ import ScreenLayout from '../ScreenLayout';
 const EditorScreen = ({ children, className = '', style = {} }) => {
   return (
     <ScreenLayout>
-      <div className={`flex flex-col justify-start items-center w-full p-5 overflow-auto ${className}`} style={style}>
+      <div className={`flex flex-col w-full h-full ${className}`} style={style}>
         {children}
       </div>
     </ScreenLayout>

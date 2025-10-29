@@ -20,7 +20,6 @@ const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBack
         setTrimStatus({ success: true, message: 'Video trimmed successfully!' });
       }
     } catch (error) {
-      console.error('🎮 ControlPanel: Trim error:', error);
       setTrimStatus({ success: false, message: error.message || 'Failed to trim video' });
     } finally {
       setIsTrimming(false);

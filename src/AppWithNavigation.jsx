@@ -11,14 +11,39 @@ import TimelineScreen from './screens/TimelineScreen';
 function AppContent() {
   const { currentScreen, selectedVideoFile, setSelectedVideoFile, navigate } = useNavigation();
   
-  // Debug logging
-  console.log('🔄 AppContent: Rendering with currentScreen:', currentScreen);
-  console.log('🔄 AppContent: selectedVideoFile:', selectedVideoFile);
+  // Restore video from sessionStorage on mount
+  React.useEffect(() => {
+    const savedVideo = sessionStorage.getItem('currentVideo');
+    if (savedVideo && !selectedVideoFile) {
+      try {
+        const videoData = JSON.parse(savedVideo);
+        setSelectedVideoFile(videoData);
+      } catch (error) {
+        // Invalid data, clear it
+        sessionStorage.removeItem('currentVideo');
+      }
+    }
+  }, [selectedVideoFile, setSelectedVideoFile]);
+  
+  // Save video to sessionStorage whenever it changes
+  React.useEffect(() => {
+    if (selectedVideoFile) {
+      sessionStorage.setItem('currentVideo', JSON.stringify(selectedVideoFile));
+    } else {
+      sessionStorage.removeItem('currentVideo');
+    }
+  }, [selectedVideoFile]);
   
   // Handle video selection from import screen
   const handleVideoSelected = (videoFile) => {
     setSelectedVideoFile(videoFile);
     navigate('preview');
+  };
+  
+  // Handle video import from editor empty state
+  const handleVideoImported = (videoFile) => {
+    setSelectedVideoFile(videoFile);
+    // Stay on editor screen, it will automatically show timeline
   };
   
   // Handle navigation back to import
@@ -46,41 +71,28 @@ function AppContent() {
   // Render the appropriate screen based on currentScreen
   switch (currentScreen) {
     case 'home':
-      console.log('🏠 AppContent: Rendering HomeScreen');
       return <HomeScreen />;
     
     case 'projects':
-      console.log('📁 AppContent: Rendering ProjectsScreen');
       return <ProjectsScreen />;
     
     case 'recordings':
-      console.log('🎥 AppContent: Rendering RecordingsScreen');
       return <RecordingsScreen />;
     
     case 'editor':
-      console.log('✂️ AppContent: Rendering Editor/Timeline');
-      console.log('✂️ AppContent: Has video file?', !!selectedVideoFile);
-      // Editor can be accessed from home, so check if we have a video file
-      // If not, show import screen first
-      if (!selectedVideoFile) {
-        console.log('✂️ AppContent: No video file, showing import screen');
-        return <VideoImportScreen onVideoSelected={handleVideoSelected} />;
-      }
-      console.log('✂️ AppContent: Has video file, showing timeline');
       return (
         <TimelineScreen
           videoFile={selectedVideoFile}
           onBackToPreview={handleBackToPreview}
           onDeleteClip={handleDeleteClip}
+          onVideoImported={handleVideoImported}
         />
       );
     
     case 'import':
-      console.log('📥 AppContent: Rendering VideoImportScreen');
       return <VideoImportScreen onVideoSelected={handleVideoSelected} />;
     
     case 'preview':
-      console.log('👁️ AppContent: Rendering VideoPreviewScreen');
       return (
         <VideoPreviewScreen
           videoFile={selectedVideoFile}
@@ -90,7 +102,6 @@ function AppContent() {
       );
     
     case 'timeline':
-      console.log('⏱️ AppContent: Rendering TimelineScreen');
       return (
         <TimelineScreen
           videoFile={selectedVideoFile}
@@ -100,7 +111,6 @@ function AppContent() {
       );
     
     default:
-      console.log('❓ AppContent: Unknown screen, defaulting to HomeScreen');
       return <HomeScreen />;
   }
 }

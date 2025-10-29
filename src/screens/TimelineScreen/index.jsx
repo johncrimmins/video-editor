@@ -3,24 +3,100 @@ import { EditorScreen } from '../../shared/layouts';
 import TimelineCanvas from './components/TimelineCanvas';
 import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
+import EmptyEditorState from './components/EmptyEditorState';
+import LoadingModal from './components/LoadingModal';
 import useTimeline from './hooks/useTimeline';
 import useTrim from './hooks/useTrim';
 import { Button, ErrorMessage } from '../../shared/ui';
 import { Card, CardContent } from '../../shared/ui/shadcn';
+import { openFileDialog, getFileInfo } from '../../shared/domains/file';
+import { validateVideoFile } from '../../shared/domains/file';
 
 /**
  * TimelineScreen - Modern version using EditorScreen template and shadcn/ui components
  * Provides timeline editor functionality with video trimming
+ * Shows empty state when no video is loaded
  */
-const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
-  useEffect(() => {
-    console.log('🎬 TimelineScreen: Component mounted');
-    console.log('🎬 TimelineScreen: videoFile:', videoFile);
-  }, [videoFile]);
+const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip, onVideoImported }) => {
+  const [isLoading, setIsLoading] = useState(false);
   
+  // Handle import from empty state
+  const handleImportClick = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Open file dialog
+      const dialogResult = await openFileDialog();
+      
+      if (dialogResult.canceled || !dialogResult.success) {
+        setIsLoading(false);
+        return;
+      }
+      
+      const filePath = dialogResult.filePath;
+      
+      // Get file info first
+      const fileInfoResult = await getFileInfo(filePath);
+      
+      if (!fileInfoResult.success) {
+        setIsLoading(false);
+        alert('Failed to read file information');
+        return;
+      }
+      
+      // Determine MIME type from extension
+      const fileName = fileInfoResult.fileInfo.name.toLowerCase();
+      let mimeType = 'video/mp4';
+      if (fileName.endsWith('.mov')) {
+        mimeType = 'video/quicktime';
+      }
+      
+      // Validate file with proper object structure
+      const validation = validateVideoFile({
+        name: fileInfoResult.fileInfo.name,
+        type: mimeType,
+        size: fileInfoResult.fileInfo.size
+      });
+      
+      if (!validation.isValid) {
+        setIsLoading(false);
+        alert(validation.error || 'Invalid video file');
+        return;
+      }
+      
+      // Get video duration
+      const duration = await window.electronAPI.getVideoDuration(filePath);
+      
+      // Create video file object
+      const videoFile = {
+        path: filePath,
+        name: fileInfoResult.fileInfo.name,
+        size: fileInfoResult.fileInfo.size,
+        type: mimeType,
+        duration: duration
+      };
+      
+      if (onVideoImported) {
+        onVideoImported(videoFile);
+      }
+    } catch (error) {
+      alert('Error importing video: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Show empty state if no video file
+  if (!videoFile) {
+    return (
+      <EditorScreen>
+        <EmptyEditorState onImportClick={handleImportClick} />
+        {isLoading && <LoadingModal message="Loading video..." />}
+      </EditorScreen>
+    );
+  }
   // Check for invalid video duration before proceeding
   if (!videoFile?.duration || videoFile.duration <= 0) {
-    console.log('🎬 TimelineScreen: Invalid video duration detected');
     return (
       <EditorScreen>
         <div className="flex flex-col justify-center items-center h-full p-xl text-center">
@@ -43,8 +119,6 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
     );
   }
   
-  console.log('🎬 TimelineScreen: Valid video, rendering timeline');
-  
   const { trimPoints, updateTrimPoint } = useTimeline(videoFile);
   const { applyTrim } = useTrim(videoFile, trimPoints);
   const [currentVideoFile, setCurrentVideoFile] = useState(videoFile);
@@ -62,7 +136,6 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
         });
       }
     } catch (error) {
-      console.error('⏰ TimelineScreen: Trim error:', error);
       throw error;
     }
   };
