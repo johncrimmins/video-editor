@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
-import { getDefaultTimelineDimensions } from '../utils/timelineUtils';
-import { positionToTime } from '../services/timelineService';
+import { getDefaultTimelineDimensions, positionToTime } from '../../../shared/domains/timeline';
 import ClipBlock from './ClipBlock';
 
 const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {

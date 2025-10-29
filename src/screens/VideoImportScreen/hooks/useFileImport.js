@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { openFileDialog, getFileInfo } from '../services/fileService';
-import { validateVideoFile } from '../utils/fileValidation';
+import { openFileDialog, getFileInfo, validateVideoFile } from '../../../shared/domains/file';
 
 console.log('🎣 useFileImport.js: useFileImport hook loading...');
 

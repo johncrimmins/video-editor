@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Group, Rect } from 'react-konva';
-import { calculateClipWidth, clamp } from '../utils/timelineUtils';
+import { calculateClipWidth, clamp } from '../../../shared/domains/timeline';
 
 const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
   if (!videoFile) {

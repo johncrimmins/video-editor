@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { convertToFileUrl } from '../../VideoPreviewScreen/services/videoService';
+import { convertToFileUrl } from '../../../shared/domains/video';
 
 const VideoPreview = ({ videoFile, trimPoints }) => {
   const videoRef = useRef(null);

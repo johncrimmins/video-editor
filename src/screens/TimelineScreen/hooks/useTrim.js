@@ -1,4 +1,5 @@
-import { calculateDuration, generateOutputPath } from '../services/trimService';
+import { calculateDuration, generateOutputPath } from '../../../shared/domains/timeline';
+import { trimVideo } from '../../../shared/domains/video';
 
 const useTrim = (videoFile, trimPoints) => {
   const applyTrim = async () => {
@@ -19,8 +20,8 @@ const useTrim = (videoFile, trimPoints) => {
       throw new Error('Failed to generate output path');
     }
     
-    // Call IPC handler
-    const result = await window.electronAPI.trimVideo({
+    // Call video service IPC handler
+    const result = await trimVideo({
       inputPath: videoFile.path,
       outputPath,
       startTime: inTime,

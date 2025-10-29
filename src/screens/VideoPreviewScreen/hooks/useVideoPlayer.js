@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { convertToFileUrl } from '../services/videoService';
+import { convertToFileUrl } from '../../../shared/domains/video';
 
 console.log('🎣 useVideoPlayer.js: useVideoPlayer hook loading...');
 
