@@ -39,6 +39,13 @@ function App() {
     console.log('🎯 App.jsx: Switched to preview screen');
   };
 
+  const handleDeleteClip = () => {
+    console.log('🎯 App.jsx: handleDeleteClip called');
+    setSelectedVideoFile(null);
+    setCurrentScreen('import');
+    console.log('🎯 App.jsx: Deleted clip and switched to import screen');
+  };
+
   const renderCurrentScreen = () => {
     console.log('🎯 App.jsx: Rendering screen:', currentScreen);
     switch (currentScreen) {
@@ -50,7 +57,7 @@ function App() {
         return <VideoPreviewScreen videoFile={selectedVideoFile} onBackToImport={handleBackToImport} onGoToTimeline={handleGoToTimeline} />;
       case 'timeline':
         console.log('🎯 App.jsx: Rendering TimelineScreen...');
-        return <TimelineScreen videoFile={selectedVideoFile} onBackToPreview={handleBackToPreview} />;
+        return <TimelineScreen videoFile={selectedVideoFile} onBackToPreview={handleBackToPreview} onDeleteClip={handleDeleteClip} />;
       default:
         console.log('🎯 App.jsx: Rendering default VideoImportScreen...');
         return <VideoImportScreen onVideoSelected={handleVideoSelected} />;

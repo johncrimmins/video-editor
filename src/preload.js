@@ -24,6 +24,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('validate-file-path', filePath);
   },
   
+  // Video operations
+  trimVideo: (params) => {
+    console.log('🔗 preload.js: trimVideo called with params:', params);
+    return ipcRenderer.invoke('trim-video', params);
+  },
+  
   // Utility methods
   platform: process.platform,
   versions: process.versions

@@ -2,33 +2,23 @@ import React, { useState } from 'react';
 import { Group, Rect } from 'react-konva';
 import { calculateClipWidth, clamp } from '../utils/timelineUtils';
 
-console.log('📦 ClipBlock.jsx: ClipBlock component loading...');
-
 const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
-  console.log('📦 ClipBlock.jsx: ClipBlock component rendering...');
-  console.log('📦 ClipBlock.jsx: videoFile prop:', videoFile);
-  console.log('📦 ClipBlock.jsx: timelineWidth prop:', timelineWidth);
-  
   if (!videoFile) {
-    console.log('📦 ClipBlock.jsx: No video file, returning null');
     return null;
   }
   
-  const clipWidth = calculateClipWidth(videoFile.duration || 0, videoFile.duration || 0, timelineWidth);
+  const clipWidth = calculateClipWidth(videoFile.duration, videoFile.duration, timelineWidth);
+  
   const clipHeight = 40;
   const clipY = 30; // Position above timeline line
   
   // State for trim handle positions
-  const [leftHandleX, setLeftHandleX] = useState(-5);
-  const [rightHandleX, setRightHandleX] = useState(clipWidth - 5);
+  const [leftHandleX, setLeftHandleX] = useState(0);
+  const [rightHandleX, setRightHandleX] = useState(clipWidth);
   
   // Calculate dynamic clip block dimensions
-  const dynamicClipX = leftHandleX + 5; // Start after left handle
-  const dynamicClipWidth = rightHandleX - leftHandleX - 5; // Width between handles
-  
-  console.log('📦 ClipBlock.jsx: Calculated clip width:', clipWidth);
-  console.log('📦 ClipBlock.jsx: Left handle x:', leftHandleX, 'Right handle x:', rightHandleX);
-  console.log('📦 ClipBlock.jsx: Dynamic clip x:', dynamicClipX, 'width:', dynamicClipWidth);
+  const dynamicClipX = leftHandleX; // Start at left handle position
+  const dynamicClipWidth = rightHandleX - leftHandleX; // Width between handles
   
   return (
     <Group>
@@ -57,8 +47,8 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
         name="left-trim-handle"
         onDragMove={(e) => {
           const newX = e.target.x();
-          const constrainedX = clamp(newX, -5, rightHandleX - 10);
-          console.log('📦 ClipBlock.jsx: Left trim handle dragging to x:', newX, 'constrained to:', constrainedX);
+          // Prevent negative positions and ensure handles don't cross
+          const constrainedX = clamp(newX, 0, rightHandleX - 20);
           setLeftHandleX(constrainedX);
           if (onTrimStart) {
             onTrimStart(constrainedX);
@@ -66,8 +56,8 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
         }}
         onDragEnd={(e) => {
           const newX = e.target.x();
-          const constrainedX = clamp(newX, -5, rightHandleX - 10);
-          console.log('📦 ClipBlock.jsx: Left trim handle drag ended at x:', constrainedX);
+          // Prevent negative positions and ensure handles don't cross
+          const constrainedX = clamp(newX, 0, rightHandleX - 20);
           setLeftHandleX(constrainedX);
           if (onTrimStart) {
             onTrimStart(constrainedX);
@@ -88,8 +78,8 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
         name="right-trim-handle"
         onDragMove={(e) => {
           const newX = e.target.x();
-          const constrainedX = clamp(newX, leftHandleX + 10, timelineWidth - 5);
-          console.log('📦 ClipBlock.jsx: Right trim handle dragging to x:', newX, 'constrained to:', constrainedX);
+          // Clamp to clipWidth (video duration) to prevent trimming beyond video length
+          const constrainedX = clamp(newX, leftHandleX + 20, clipWidth);
           setRightHandleX(constrainedX);
           if (onTrimEnd) {
             onTrimEnd(constrainedX);
@@ -97,8 +87,8 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
         }}
         onDragEnd={(e) => {
           const newX = e.target.x();
-          const constrainedX = clamp(newX, leftHandleX + 10, timelineWidth - 5);
-          console.log('📦 ClipBlock.jsx: Right trim handle drag ended at x:', constrainedX);
+          // Clamp to clipWidth (video duration) to prevent trimming beyond video length
+          const constrainedX = clamp(newX, leftHandleX + 20, clipWidth);
           setRightHandleX(constrainedX);
           if (onTrimEnd) {
             onTrimEnd(constrainedX);
@@ -109,5 +99,4 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
   );
 };
 
-console.log('📦 ClipBlock.jsx: ClipBlock component defined, exporting...');
 export default ClipBlock;
