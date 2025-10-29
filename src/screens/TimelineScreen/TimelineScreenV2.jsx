@@ -5,9 +5,8 @@ import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
 import useTimeline from './hooks/useTimeline';
 import useTrim from './hooks/useTrim';
-import { Button, Container, ErrorMessage } from '../../shared/ui';
+import { Button, ErrorMessage } from '../../shared/ui';
 import { Card, CardContent } from '../../shared/ui/shadcn';
-import { colors, spacing } from '../../shared/ui/theme';
 
 /**
  * TimelineScreenV2 - Migrated version using EditorScreen template and shadcn/ui components
@@ -32,7 +31,7 @@ const TimelineScreenV2 = ({ videoFile, onBackToPreview, onDeleteClip }) => {
             <CardContent className="p-0">
               <ErrorMessage 
                 message={`Could not extract video duration (got: ${videoFile?.duration || 'undefined'} seconds). This usually means the video file is corrupted or in an unsupported format.`}
-                style={{ marginBottom: 0 }}
+                className="mb-0"
               />
             </CardContent>
           </Card>

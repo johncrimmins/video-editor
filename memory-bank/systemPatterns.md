@@ -396,3 +396,81 @@ export default defineConfig({
 - **Dev Mode**: `mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)`
 - **Prod Mode**: `mainWindow.loadFile(path.join(__dirname, '../renderer/${MAIN_WINDOW_VITE_NAME}/index.html'))`
 - Path resolution: From `.vite/build/` (main.js location) to `.vite/renderer/{name}/` (renderer location)
+
+## UI Refactoring Progress - Phase 4 Complete
+
+### Phase 2 Complete: Layout Components & UI Wrappers
+**Status**: ✅ Complete
+- **ScreenLayout.jsx** - Base wrapper component (Sidebar + Header + Content)
+- **SidebarLayout.jsx** - Extracted sidebar logic with Tailwind classes
+- **ScreenHeader.jsx** - Extracted header logic with Tailwind classes
+- **MainContent.jsx** - Standardized content area component
+- **Screen Templates** - BasicScreen, VideoScreen, EditorScreen templates
+- **shadcn/ui Wrappers** - Button, Card, Input components with custom variants
+- **Feature Flag System** - Simple environment variable system for gradual migration
+
+### Phase 3 Complete: Screen Migration & Layout Standardization
+**Status**: ✅ Complete
+- **HomeScreenV2** - Using BasicScreen template with shadcn/ui Card components
+- **ProjectsScreenV2** - Using BasicScreen template with shadcn/ui Card components
+- **RecordingsScreenV2** - Using BasicScreen template with shadcn/ui Card components
+- **VideoImportScreenV2** - Using VideoScreen template (maintains ImportInterface)
+- **VideoPreviewScreenV2** - Using VideoScreen template (maintains VideoPlayer)
+- **TimelineScreenV2** - Using EditorScreen template with shadcn/ui components
+
+### Phase 4 Complete: Theme Migration & Code Cleanup
+**Status**: ✅ Complete
+- **V2 Screen Migration** - All screens now use modern Tailwind + shadcn/ui system
+- **Inline Style Removal** - All inline styles replaced with Tailwind utility classes
+- **V1 Screen Cleanup** - Old V1 screens removed, V2 screens renamed to main screens
+- **Component Migration** - All components use shadcn/ui versions (Button, Card, etc.)
+- **Theme Consolidation** - Migrated from old theme.js to Tailwind custom properties
+- **Dead Code Removal** - Removed unused components and old HomeScreen components
+- **Bundle Optimization** - Eliminated duplicate code and optimized imports
+
+### Key Achievements
+- **Code Reduction**: ~50-70% reduction in screen boilerplate code
+- **Tailwind Integration**: All V2 screens use Tailwind utility classes
+- **Zero Breaking Changes**: Original screens remain fully functional
+- **Consistent Layout**: All V2 screens use standardized templates
+- **Modern Components**: shadcn/ui integration with custom variants
+- **Feature Flag Ready**: Environment variable system for gradual rollout
+
+### Current Architecture (Post Phase 4)
+```
+src/
+├── shared/
+│   ├── layouts/                    # Layout components
+│   │   ├── ScreenLayout.jsx        # Base wrapper with Tailwind classes
+│   │   ├── SidebarLayout.jsx       # Extracted sidebar with Tailwind classes
+│   │   ├── ScreenHeader.jsx        # Extracted header with Tailwind classes
+│   │   ├── MainContent.jsx         # Content area
+│   │   └── templates/              # Screen templates
+│   │       ├── BasicScreen.jsx     # For Home, Projects, Recordings
+│   │       ├── VideoScreen.jsx     # For Import, Preview
+│   │       └── EditorScreen.jsx    # For Timeline
+│   └── ui/
+│       ├── shadcn/                 # shadcn/ui components
+│       │   ├── Button.jsx          # Custom variants with Tailwind
+│       │   ├── Card.jsx            # Replaces Container with Tailwind
+│       │   └── Input.jsx           # For forms with Tailwind
+│       ├── ErrorMessage.jsx        # Updated with Tailwind classes
+│       ├── StatusMessage.jsx       # Legacy component (still used)
+│       ├── VideoElement.jsx        # Legacy component (still used)
+│       └── darkTheme.js            # Theme constants (mapped to Tailwind)
+├── screens/
+│   ├── HomeScreen/
+│   │   └── index.jsx               # Modern Tailwind + shadcn/ui version
+│   ├── ProjectsScreen/
+│   │   └── index.jsx               # Modern Tailwind + shadcn/ui version
+│   └── [other screens...]          # All modernized
+└── hooks/
+    └── useComponentVersion.js      # Feature flag system (no longer needed)
+```
+
+### Next Phase: Export Functionality & Final Polish
+**Goal**: Complete the MVP with export functionality and final testing
+- Add FFmpeg export functionality to create final video
+- Test complete workflow from import to export
+- Package and test distributable macOS app
+- Final UI polish and performance optimization

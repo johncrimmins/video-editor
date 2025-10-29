@@ -23,8 +23,8 @@ const SidebarLayout = () => {
   
   return (
     <div 
-      className="h-screen bg-sidebar border-r border-border flex flex-col py-md fixed left-0 top-0 z-50 transition-all duration-300 ease-in-out"
-      style={{ width: `${sidebarWidth}px` }}
+      className="h-screen bg-sidebar border-r border-border flex flex-col py-md fixed left-0 top-0 z-50 transition-all duration-300 ease-in-out w-[var(--sidebar-width)]"
+      style={{ '--sidebar-width': `${sidebarWidth}px` }}
     >
       {/* Toggle button */}
       <div className="flex justify-end px-md mb-md">

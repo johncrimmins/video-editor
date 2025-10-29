@@ -20,8 +20,8 @@ const ScreenHeader = () => {
   
   return (
     <div 
-      className="h-15 bg-background-secondary border-b border-border flex items-center justify-between px-xl fixed top-0 right-0 z-40 transition-all duration-300 ease-in-out"
-      style={{ left: `${sidebarWidth}px` }}
+      className="h-15 bg-background-secondary border-b border-border flex items-center justify-between px-xl fixed top-0 right-0 z-40 transition-all duration-300 ease-in-out left-[var(--sidebar-width)]"
+      style={{ '--sidebar-width': `${sidebarWidth}px` }}
     >
       <div className="flex-1 max-w-md">
         <input

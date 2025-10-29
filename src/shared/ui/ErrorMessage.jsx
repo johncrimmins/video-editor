@@ -1,29 +1,27 @@
 import React from 'react';
-import { colors, borderRadius, spacing } from './theme';
+import { cn } from '../../lib/utils';
 
 /**
  * Shared ErrorMessage component for displaying error messages
  * @param {Object} props
  * @param {string} props.message - Error message to display
+ * @param {string} props.className - Additional CSS classes
  * @param {Object} props.style - Additional inline styles
  */
-const ErrorMessage = ({ message, style = {}, ...props }) => {
-  const baseStyles = {
-    marginBottom: spacing.xl,
-    padding: spacing.md,
-    backgroundColor: colors.errorBg,
-    color: colors.error,
-    borderRadius: borderRadius.sm,
-    border: `1px solid ${colors.errorBorder}`,
-    ...style,
-  };
-
+const ErrorMessage = ({ message, className = '', style = {}, ...props }) => {
   if (!message) {
     return null;
   }
 
   return (
-    <div style={baseStyles} {...props}>
+    <div 
+      className={cn(
+        'mb-xl p-md bg-error-bg text-error rounded-sm border border-error',
+        className
+      )}
+      style={style}
+      {...props}
+    >
       <strong>Error:</strong> {message}
     </div>
   );

@@ -1,7 +1,6 @@
 import React from 'react';
 import useFileImport from '../hooks/useFileImport';
-import { Button, Container, ErrorMessage } from '../../../shared/ui';
-import { colors, spacing, fontSizes } from '../../../shared/ui/theme';
+import { Button, Card, ErrorMessage } from '../../../shared/ui';
 import { formatFileSize } from '../../../shared/domains/file';
 
 console.log('🔧 ImportInterface.jsx: ImportInterface component loading...');
@@ -30,23 +29,23 @@ const ImportInterface = ({ onVideoSelected }) => {
 
   console.log('🔧 ImportInterface.jsx: Returning JSX...');
   return (
-    <Container variant="dashed" style={{ minWidth: '300px' }}>
-      <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
+    <Card variant="dashed" className="min-w-75">
+      <h2 className="mb-xl text-text">
         Import Video
       </h2>
       
       <ErrorMessage message={error} />
       
       {selectedFile ? (
-        <div style={{ marginBottom: spacing.xxl }}>
-          <p style={{ color: colors.success, marginBottom: spacing.md }}>
+        <div className="mb-xxl">
+          <p className="text-success mb-md">
             ✅ File selected successfully!
           </p>
-          <p style={{ color: colors.text, fontSize: fontSizes.sm, marginBottom: spacing.lg }}>
+          <p className="text-text text-sm mb-lg">
             <strong>File:</strong> {selectedFile.name}<br/>
             <strong>Size:</strong> {formatFileSize(selectedFile.size)}
           </p>
-          <div style={{ display: 'flex', gap: spacing.md, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="flex gap-md justify-center flex-wrap">
             <Button variant="secondary" size="sm" onClick={clearFile}>
               Clear File
             </Button>
@@ -60,7 +59,7 @@ const ImportInterface = ({ onVideoSelected }) => {
         </div>
       ) : (
         <div>
-          <p style={{ marginBottom: spacing.xxl, color: colors.textSecondary }}>
+          <p className="mb-xxl text-text-secondary">
             Select an MP4 or MOV video file to get started
           </p>
           <Button
@@ -73,7 +72,7 @@ const ImportInterface = ({ onVideoSelected }) => {
           </Button>
         </div>
       )}
-    </Container>
+    </Card>
   );
 };
 

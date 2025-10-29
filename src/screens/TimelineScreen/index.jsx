@@ -1,61 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../HomeScreen/components/Sidebar';
-import Header from '../HomeScreen/components/Header';
+import { EditorScreen } from '../../shared/layouts';
 import TimelineCanvas from './components/TimelineCanvas';
 import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
 import useTimeline from './hooks/useTimeline';
 import useTrim from './hooks/useTrim';
-import { useSidebar } from '../../contexts/SidebarContext';
-import { Button, Container, ErrorMessage } from '../../shared/ui';
-import { colors, spacing, fontSizes } from '../../shared/ui/theme';
-import { darkTheme } from '../../shared/ui/darkTheme';
+import { Button, ErrorMessage } from '../../shared/ui';
+import { Card, CardContent } from '../../shared/ui/shadcn';
 
+/**
+ * TimelineScreen - Modern version using EditorScreen template and shadcn/ui components
+ * Provides timeline editor functionality with video trimming
+ */
 const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
-  const { sidebarWidth } = useSidebar();
-  
   useEffect(() => {
     console.log('🎬 TimelineScreen: Component mounted');
     console.log('🎬 TimelineScreen: videoFile:', videoFile);
-    console.log('🎬 TimelineScreen: sidebarWidth:', sidebarWidth);
-  }, [videoFile, sidebarWidth]);
+  }, [videoFile]);
+  
   // Check for invalid video duration before proceeding
   if (!videoFile?.duration || videoFile.duration <= 0) {
     console.log('🎬 TimelineScreen: Invalid video duration detected');
     return (
-      <div style={styles.container}>
-        <Sidebar />
-        <div style={{
-          ...styles.mainArea,
-          marginLeft: `${sidebarWidth}px`,
-        }}>
-          <Header />
-          <div style={styles.content}>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              height: '100%',
-              padding: spacing.xl,
-              textAlign: 'center'
-            }}>
-              <h2 style={{ marginBottom: spacing.xl, color: colors.danger }}>
-                ⚠️ Invalid Video Duration
-              </h2>
-              <Container variant="card" style={{ maxWidth: '500px', marginBottom: spacing.xl, borderColor: colors.danger }}>
-                <ErrorMessage 
-                  message={`Could not extract video duration (got: ${videoFile?.duration || 'undefined'} seconds). This usually means the video file is corrupted or in an unsupported format.`}
-                  style={{ marginBottom: 0 }}
-                />
-              </Container>
-              <Button variant="primary" size="lg" onClick={onBackToPreview}>
-                ← Back to Preview
-              </Button>
-            </div>
-          </div>
+      <EditorScreen>
+        <div className="flex flex-col justify-center items-center h-full p-xl text-center">
+          <h2 className="mb-xl text-error text-2xl">
+            ⚠️ Invalid Video Duration
+          </h2>
+          <Card variant="card" className="max-w-lg mb-xl border-error">
+            <CardContent className="p-0">
+              <ErrorMessage 
+                message={`Could not extract video duration (got: ${videoFile?.duration || 'undefined'} seconds). This usually means the video file is corrupted or in an unsupported format.`}
+                className="mb-0"
+              />
+            </CardContent>
+          </Card>
+          <Button variant="primary" size="lg" onClick={onBackToPreview}>
+            ← Back to Preview
+          </Button>
         </div>
-      </div>
+      </EditorScreen>
     );
   }
   
@@ -90,77 +74,39 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   };
   
   return (
-    <div style={styles.container}>
-      <Sidebar />
-      <div style={{
-        ...styles.mainArea,
-        marginLeft: `${sidebarWidth}px`,
-      }}>
-        <Header />
-        <div style={styles.content}>
-          <div style={styles.editorContent}>
-            <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
-              Timeline Editor
-            </h2>
-            
-            {currentVideoFile ? (
-              <div style={{ width: '100%', maxWidth: '800px' }}>
-                <TimelineCanvas videoFile={currentVideoFile} trimPoints={trimPoints} updateTrimPoint={updateTrimPoint} />
-                <VideoPreview videoFile={currentVideoFile} trimPoints={trimPoints} />
-                <ControlPanel 
-                  videoFile={currentVideoFile} 
-                  trimPoints={trimPoints}
-                  onApplyTrim={handleApplyTrim}
-                  onDeleteClip={handleDeleteClip}
-                  onBackToPreview={onBackToPreview}
-                />
-              </div>
-            ) : (
-              <Container variant="dashed" style={{ minWidth: '300px' }}>
-                <h3 style={{ marginBottom: spacing.xl, color: colors.dark }}>
-                  No Video Selected
-                </h3>
-                <p style={{ color: colors.textSecondary }}>
-                  Please go back to the preview screen to select a video file.
-                </p>
-              </Container>
-            )}
+    <EditorScreen>
+      <div className="flex flex-col justify-start items-center w-full">
+        <h2 className="mb-xl text-text text-2xl">
+          Timeline Editor
+        </h2>
+        
+        {currentVideoFile ? (
+          <div className="w-full max-w-4xl">
+            <TimelineCanvas videoFile={currentVideoFile} trimPoints={trimPoints} updateTrimPoint={updateTrimPoint} />
+            <VideoPreview videoFile={currentVideoFile} trimPoints={trimPoints} />
+            <ControlPanel 
+              videoFile={currentVideoFile} 
+              trimPoints={trimPoints}
+              onApplyTrim={handleApplyTrim}
+              onDeleteClip={handleDeleteClip}
+              onBackToPreview={onBackToPreview}
+            />
           </div>
-        </div>
+        ) : (
+          <Card variant="dashed" className="min-w-75">
+            <CardContent>
+              <h3 className="mb-xl text-text text-xl">
+                No Video Selected
+              </h3>
+              <p className="text-text-secondary">
+                Please go back to the preview screen to select a video file.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
-    </div>
+    </EditorScreen>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: darkTheme.background,
-    overflow: 'hidden',
-  },
-  mainArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    transition: 'margin-left 0.3s ease',
-  },
-  content: {
-    marginTop: '60px',
-    flex: 1,
-    overflow: 'auto',
-    display: 'flex',
-  },
-  editorContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
-    padding: '20px',
-  },
 };
 
 export default TimelineScreen;

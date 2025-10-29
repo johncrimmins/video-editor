@@ -20,8 +20,8 @@ const ScreenLayout = ({ children, headerProps = {}, contentProps = {} }) => {
     <div className="flex w-screen h-screen bg-background overflow-hidden">
       <SidebarLayout />
       <div 
-        className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ marginLeft: `${sidebarWidth}px` }}
+        className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ml-[var(--sidebar-width)]"
+        style={{ '--sidebar-width': `${sidebarWidth}px` }}
       >
         <ScreenHeader {...headerProps} />
         <MainContent {...contentProps}>

@@ -1,84 +1,29 @@
 import React from 'react';
-import Sidebar from '../HomeScreen/components/Sidebar';
-import Header from '../HomeScreen/components/Header';
-import { useSidebar } from '../../contexts/SidebarContext';
-import { darkTheme, darkSpacing, darkFontSizes, darkFontWeights } from '../../shared/ui/darkTheme';
+import { BasicScreen } from '../../shared/layouts';
+import { Card, CardContent } from '../../shared/ui/shadcn';
 
+/**
+ * RecordingsScreen - Modern version using BasicScreen template and shadcn/ui components
+ * Provides placeholder for future recordings functionality
+ */
 const RecordingsScreen = () => {
-  const { sidebarWidth } = useSidebar();
-  
   return (
-    <div style={styles.container}>
-      <Sidebar />
-      <div style={{
-        ...styles.mainArea,
-        marginLeft: `${sidebarWidth}px`,
-      }}>
-        <Header />
-        <div style={styles.content}>
-          <div style={styles.placeholder}>
-            <div style={styles.iconContainer}>
-              <span style={styles.icon}>🎥</span>
-            </div>
-            <h1 style={styles.heading}>Quick Recordings</h1>
-            <p style={styles.description}>
-              Record quick demos and screen captures. This feature is coming soon!
-            </p>
+    <BasicScreen className="justify-center items-center">
+      <Card variant="card" className="text-center max-w-lg p-xxxl">
+        <CardContent className="p-0">
+          <div className="mb-xl">
+            <span className="text-9xl inline-block opacity-50">🎥</span>
           </div>
-        </div>
-      </div>
-    </div>
+          <h1 className="text-4xl font-semibold text-text mb-lg">
+            Quick Recordings
+          </h1>
+          <p className="text-md text-text-secondary leading-relaxed">
+            Record quick demos and screen captures. This feature is coming soon!
+          </p>
+        </CardContent>
+      </Card>
+    </BasicScreen>
   );
 };
 
-const styles = {
-  container: {
-    display: 'flex',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: darkTheme.background,
-    overflow: 'hidden',
-  },
-  mainArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    transition: 'margin-left 0.3s ease',
-  },
-  content: {
-    marginTop: '60px',
-    flex: 1,
-    overflow: 'auto',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholder: {
-    textAlign: 'center',
-    maxWidth: '500px',
-    padding: darkSpacing.xxxl,
-  },
-  iconContainer: {
-    marginBottom: darkSpacing.xl,
-  },
-  icon: {
-    fontSize: '96px',
-    display: 'inline-block',
-    opacity: 0.5,
-  },
-  heading: {
-    fontSize: darkFontSizes.xxxl,
-    fontWeight: darkFontWeights.semibold,
-    color: darkTheme.text,
-    marginBottom: darkSpacing.lg,
-  },
-  description: {
-    fontSize: darkFontSizes.md,
-    color: darkTheme.textSecondary,
-    lineHeight: 1.6,
-  },
-};
-
 export default RecordingsScreen;
-

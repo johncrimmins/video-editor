@@ -1,59 +1,20 @@
 import React from 'react';
-import Sidebar from '../HomeScreen/components/Sidebar';
-import Header from '../HomeScreen/components/Header';
+import { VideoScreen } from '../../shared/layouts';
 import ImportInterface from './components/ImportInterface';
-import { useSidebar } from '../../contexts/SidebarContext';
-import { darkTheme } from '../../shared/ui/darkTheme';
 
-console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen loading...');
-
+/**
+ * VideoImportScreen - Modern version using VideoScreen template
+ * Provides video import functionality with file picker
+ */
 const VideoImportScreen = ({ onVideoSelected }) => {
-  const { sidebarWidth } = useSidebar();
-  
-  console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component rendering...');
-  console.log('📹 VideoImportScreen/index.jsx: onVideoSelected prop:', onVideoSelected);
-  console.log('📹 VideoImportScreen/index.jsx: sidebarWidth:', sidebarWidth);
+  console.log('📹 VideoImportScreen: VideoImportScreen component rendering...');
+  console.log('📹 VideoImportScreen: onVideoSelected prop:', onVideoSelected);
   
   return (
-    <div style={styles.container}>
-      <Sidebar />
-      <div style={{
-        ...styles.mainArea,
-        marginLeft: `${sidebarWidth}px`,
-      }}>
-        <Header />
-        <div style={styles.content}>
-          <ImportInterface onVideoSelected={onVideoSelected} />
-        </div>
-      </div>
-    </div>
+    <VideoScreen>
+      <ImportInterface onVideoSelected={onVideoSelected} />
+    </VideoScreen>
   );
 };
 
-const styles = {
-  container: {
-    display: 'flex',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: darkTheme.background,
-    overflow: 'hidden',
-  },
-  mainArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    transition: 'margin-left 0.3s ease',
-  },
-  content: {
-    marginTop: '60px',
-    flex: 1,
-    overflow: 'hidden',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-};
-
-console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component defined, exporting...');
 export default VideoImportScreen;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Container, StatusMessage } from '../../../shared/ui';
-import { colors, spacing, fontSizes } from '../../../shared/ui/theme';
+import { Button, Card, StatusMessage } from '../../../shared/ui';
 
 const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBackToPreview }) => {
   const [isTrimming, setIsTrimming] = useState(false);
@@ -35,12 +34,12 @@ const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBack
   };
   
   return (
-    <Container variant="card" style={{ marginTop: spacing.xl }}>
-      <h3 style={{ marginBottom: spacing.md, fontSize: fontSizes.md, color: colors.dark }}>
+    <Card variant="card" className="mt-xl">
+      <h3 className="mb-md text-base text-text">
         Controls
       </h3>
       
-      <div style={{ display: 'flex', gap: spacing.md, flexWrap: 'wrap' }}>
+      <div className="flex gap-md flex-wrap">
         <Button
           variant="primary"
           onClick={handleApplyTrim}
@@ -69,7 +68,7 @@ const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBack
         success={trimStatus?.success}
         message={trimStatus?.message}
       />
-    </Container>
+    </Card>
   );
 };
 

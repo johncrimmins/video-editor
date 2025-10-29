@@ -1,7 +1,6 @@
 import React from 'react';
 import useVideoPlayer from '../hooks/useVideoPlayer';
-import { Button, Container, VideoElement } from '../../../shared/ui';
-import { colors, spacing, fontSizes } from '../../../shared/ui/theme';
+import { Button, Card, VideoElement } from '../../../shared/ui';
 
 console.log('🎥 VideoPlayer.jsx: VideoPlayer component loading...');
 
@@ -37,35 +36,35 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   if (!videoFile) {
     console.log('🎥 VideoPlayer.jsx: No video file provided, showing message');
     return (
-      <Container variant="dashed" style={{ minWidth: '300px' }}>
-        <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
+      <Card variant="dashed" className="min-w-75">
+        <h2 className="mb-xl text-text">
           No Video Selected
         </h2>
-        <p style={{ color: colors.textSecondary }}>
+        <p className="text-text-secondary">
           Please go back to the import screen to select a video file.
         </p>
-      </Container>
+      </Card>
     );
   }
 
   if (!isVideoReady) {
     console.log('🎥 VideoPlayer.jsx: Video not ready, showing loading message');
     return (
-      <Container variant="dashed" style={{ minWidth: '300px' }}>
-        <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
+      <Card variant="dashed" className="min-w-75">
+        <h2 className="mb-xl text-text">
           Loading Video...
         </h2>
-        <p style={{ color: colors.textSecondary }}>
+        <p className="text-text-secondary">
           Preparing video for playback
         </p>
-      </Container>
+      </Card>
     );
   }
 
   console.log('🎥 VideoPlayer.jsx: Rendering video element with URL:', videoUrl);
   return (
-    <Container variant="solid" style={{ minWidth: '400px' }}>
-      <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
+    <Card variant="solid" className="min-w-96">
+      <h2 className="mb-xl text-text">
         Video Preview
       </h2>
       <VideoElement 
@@ -74,10 +73,10 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
         onLoadedData={() => console.log('🎥 VideoPlayer.jsx: Video data loaded')}
         onError={(e) => console.error('🎥 VideoPlayer.jsx: Video error:', e)}
       />
-      <p style={{ marginTop: spacing.lg, color: colors.textSecondary, fontSize: fontSizes.sm }}>
+      <p className="mt-lg text-text-secondary text-sm">
         <strong>File:</strong> {videoFile.name}
       </p>
-      <div style={{ marginTop: spacing.lg, display: 'flex', gap: spacing.md, justifyContent: 'center' }}>
+      <div className="mt-lg flex gap-md justify-center">
         <Button variant="primary" size="sm" onClick={handleGoToTimeline}>
           Go to Timeline
         </Button>
@@ -85,7 +84,7 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
           Back to Import
         </Button>
       </div>
-    </Container>
+    </Card>
   );
 };
 

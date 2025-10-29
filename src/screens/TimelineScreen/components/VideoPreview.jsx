@@ -1,6 +1,5 @@
 import React from 'react';
-import { Container, VideoElement } from '../../../shared/ui';
-import { colors, spacing, fontSizes } from '../../../shared/ui/theme';
+import { Card, VideoElement } from '../../../shared/ui';
 
 const VideoPreview = ({ videoFile, trimPoints }) => {
   if (!videoFile) {
@@ -8,8 +7,8 @@ const VideoPreview = ({ videoFile, trimPoints }) => {
   }
   
   return (
-    <Container variant="card" style={{ marginTop: spacing.xl, padding: spacing.md }}>
-      <h3 style={{ marginBottom: spacing.md, fontSize: fontSizes.md, color: colors.dark }}>
+    <Card variant="card" className="mt-xl p-md">
+      <h3 className="mb-md text-base text-text">
         Video Preview
       </h3>
       <VideoElement 
@@ -20,13 +19,13 @@ const VideoPreview = ({ videoFile, trimPoints }) => {
         }}
       />
       {trimPoints && (
-        <div style={{ marginTop: spacing.md, fontSize: fontSizes.xs, color: colors.textSecondary }}>
+        <div className="mt-md text-xs text-text-secondary">
           <div>In: {trimPoints.inTime?.toFixed(2)}s</div>
           <div>Out: {trimPoints.outTime?.toFixed(2)}s</div>
           <div>Duration: {(trimPoints.outTime - trimPoints.inTime)?.toFixed(2)}s</div>
         </div>
       )}
-    </Container>
+    </Card>
   );
 };
 
