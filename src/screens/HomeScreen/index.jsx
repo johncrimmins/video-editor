@@ -1,18 +1,12 @@
 import React from 'react';
-import Sidebar from '../HomeScreen/components/Sidebar';
-import Header from '../HomeScreen/components/Header';
-import ImportInterface from './components/ImportInterface';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import MainContent from './components/MainContent';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { darkTheme } from '../../shared/ui/darkTheme';
 
-console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen loading...');
-
-const VideoImportScreen = ({ onVideoSelected }) => {
+const HomeScreen = () => {
   const { sidebarWidth } = useSidebar();
-  
-  console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component rendering...');
-  console.log('📹 VideoImportScreen/index.jsx: onVideoSelected prop:', onVideoSelected);
-  console.log('📹 VideoImportScreen/index.jsx: sidebarWidth:', sidebarWidth);
   
   return (
     <div style={styles.container}>
@@ -23,7 +17,7 @@ const VideoImportScreen = ({ onVideoSelected }) => {
       }}>
         <Header />
         <div style={styles.content}>
-          <ImportInterface onVideoSelected={onVideoSelected} />
+          <MainContent />
         </div>
       </div>
     </div>
@@ -50,10 +44,8 @@ const styles = {
     flex: 1,
     overflow: 'hidden',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 };
 
-console.log('📹 VideoImportScreen/index.jsx: VideoImportScreen component defined, exporting...');
-export default VideoImportScreen;
+export default HomeScreen;
+
