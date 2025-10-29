@@ -124,7 +124,22 @@
 
 ## Recently Resolved Issues
 
-### 🎨 Empty Editor Screen Implementation (Latest) - COMPLETE
+### 🔧 TimelineScreen Import Functionality Refactoring (Latest) - COMPLETE
+- ✅ **Shared useFileImport Hook**: Extracted import logic to `src/shared/hooks/useFileImport.js` for reusability
+- ✅ **TimelineScreen Integration**: Updated TimelineScreen to use shared hook instead of inline import logic
+- ✅ **VideoImportScreen Compatibility**: Maintained backward compatibility by re-exporting shared hook
+- ✅ **Error Handling**: Improved error handling with proper error state management and user feedback
+- ✅ **Code Reuse**: Eliminated code duplication between VideoImportScreen and TimelineScreen
+- ✅ **Consistent Behavior**: Both screens now have identical import functionality and error handling
+- ✅ **Maintainability**: Single source of truth for import logic, easier to maintain and debug
+- ✅ **Two-Component Architecture**: Refactored TimelineScreen into EmptyEditorScreen and TimelineEditorScreen components
+- ✅ **Hook Order Violation Fix**: Eliminated conditional hook calls by separating concerns into dedicated components
+- ✅ **Clean Component Separation**: EmptyEditorScreen handles import, TimelineEditorScreen handles timeline functionality
+- ✅ **No Hook Violations**: Each component calls consistent hooks every render, following React best practices
+- ✅ **Import Flow Working**: Users can now import videos from empty editor state without crashes
+- ✅ **React Best Practices**: Follows composition over conditional logic patterns
+
+### 🎨 Empty Editor Screen Implementation (Previous) - COMPLETE
 - ✅ **Empty Editor State**: Created EmptyEditorState component with "Name your creation" heading and file picker
 - ✅ **Loading Modal**: Added LoadingModal component for video import loading states
 - ✅ **Direct Editor Navigation**: Modified AppWithNavigation to route directly to TimelineScreen when "Editor" is selected

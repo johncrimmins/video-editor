@@ -115,10 +115,19 @@ src/
 │   │   ├── components/            # Screen-specific components (.jsx)
 │   │   ├── hooks/                 # Screen-specific hooks (.js)
 │   │   └── index.jsx              # Screen entry point
-│   ├── TimelineScreen/            # Timeline UI module
+│   ├── TimelineScreen/            # Timeline UI module (refactored)
 │   │   ├── components/            # Screen-specific components (.jsx)
+│   │   │   ├── EmptyEditorScreen.jsx    # 🆕 Empty state + import functionality
+│   │   │   ├── TimelineEditorScreen.jsx # 🆕 Timeline editing functionality
+│   │   │   ├── EmptyEditorState.jsx     # Empty state UI component
+│   │   │   ├── LoadingModal.jsx         # Loading state component
+│   │   │   ├── TimelineCanvas.jsx       # Konva.js timeline canvas
+│   │   │   ├── VideoPreview.jsx         # Video preview component
+│   │   │   └── ControlPanel.jsx         # Timeline control panel
 │   │   ├── hooks/                 # Screen-specific hooks (.js)
-│   │   └── index.jsx              # Screen entry point
+│   │   │   ├── useTimeline.js           # Timeline state management
+│   │   │   └── useTrim.js               # Video trimming functionality
+│   │   └── index.jsx              # Router component (delegates to sub-components)
 │   └── ExportScreen/              # Export UI module (future)
 │       ├── components/            # Screen-specific components (.jsx)
 │       ├── hooks/                 # Screen-specific hooks (.js)
@@ -136,6 +145,8 @@ src/
 6. **Separation of Concerns** - Utils (pure functions) vs Services (IPC operations) vs UI (components)
 7. **Centralized Theme** - Theme constants (colors, spacing, fonts) in shared/ui/theme.js
 8. **Scalable Structure** - Easy to add new domains, UI components, and extend functionality
+9. **Component Composition** - Use composition over conditional logic to avoid React hooks violations
+10. **Consistent Hook Patterns** - Each component calls the same hooks every render, following React best practices
 
 ### Domain Organization
 Each domain contains:
@@ -148,8 +159,27 @@ Each domain contains:
 Each screen manages its own complete data flow:
 1. **VideoImportScreen**: File Selection → Validation → Storage → Navigation
 2. **VideoPreviewScreen**: File Loading → Player Setup → Controls → Navigation
-3. **TimelineScreen**: Clip Management → Timeline Rendering → Interactions → Navigation
+3. **TimelineScreen**: 
+   - **Empty State**: File Selection → Validation → Import → Navigation
+   - **Timeline State**: Clip Management → Timeline Rendering → Interactions → Navigation
 4. **ExportScreen**: Export Setup → Processing → Progress → Completion
+
+### Component Composition Pattern - TimelineScreen Refactoring
+The TimelineScreen demonstrates a key architectural pattern for handling conditional functionality:
+
+**Problem**: React hooks must be called in the same order every render, but TimelineScreen needed different behavior for empty vs loaded states.
+
+**Solution**: Component composition with dedicated sub-components:
+- **TimelineScreen (Router)**: Simple conditional rendering, no hooks
+- **EmptyEditorScreen**: Handles import functionality, calls useFileImport hook consistently
+- **TimelineEditorScreen**: Handles timeline functionality, calls timeline hooks consistently
+
+**Benefits**:
+- ✅ No React hooks order violations
+- ✅ Clear separation of concerns
+- ✅ Easy to test and maintain
+- ✅ Follows React best practices
+- ✅ Each component has single responsibility
 
 ### State Management - Per Screen
 Each screen manages its own state independently:
