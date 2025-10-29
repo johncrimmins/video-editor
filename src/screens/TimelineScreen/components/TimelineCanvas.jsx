@@ -6,6 +6,14 @@ import ClipBlock from './ClipBlock';
 const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
   const [dimensions, setDimensions] = useState(getDefaultTimelineDimensions());
   
+  // Debug logging
+  useEffect(() => {
+    console.log('🎨 TimelineCanvas: Component mounted');
+    console.log('🎨 TimelineCanvas: videoFile:', videoFile);
+    console.log('🎨 TimelineCanvas: trimPoints:', trimPoints);
+    console.log('🎨 TimelineCanvas: dimensions:', dimensions);
+  }, [videoFile, trimPoints, dimensions]);
+  
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -24,13 +32,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
   }, []);
   
   return (
-    <div style={{
-      border: '1px solid #ccc',
-      borderRadius: '4px',
-      padding: '20px',
-      backgroundColor: '#f9f9f9',
-      minHeight: '200px'
-    }}>
+    <div className="border border-border rounded-md p-xl bg-card min-h-[200px]">
       <Stage width={dimensions.width} height={dimensions.height}>
         <Layer>
           {/* Timeline base line */}
@@ -60,7 +62,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
         </Layer>
       </Stage>
       
-      <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+      <div className="mt-sm text-xs text-text-secondary">
         {videoFile ? `Video: ${videoFile.name}` : 'No video loaded'}
       </div>
     </div>

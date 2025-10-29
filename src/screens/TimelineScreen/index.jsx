@@ -93,7 +93,7 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
             />
           </div>
         ) : (
-          <Card variant="dashed" className="min-w-75">
+          <Card variant="dashed" className="min-w-[300px]">
             <CardContent>
               <h3 className="mb-xl text-text text-xl">
                 No Video Selected
