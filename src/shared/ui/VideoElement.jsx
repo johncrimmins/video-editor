@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { borderRadius } from './theme';
+import { borderRadius } from './darkTheme';
 import { convertToFileUrl } from '../domains/video';
 
 /**

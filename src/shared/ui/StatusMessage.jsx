@@ -1,5 +1,5 @@
 import React from 'react';
-import { colors, borderRadius, spacing } from './theme';
+import { darkTheme as colors, borderRadius, spacing } from './darkTheme';
 
 /**
  * Shared StatusMessage component for displaying success/error status messages

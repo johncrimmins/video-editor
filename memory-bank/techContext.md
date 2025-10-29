@@ -8,12 +8,13 @@
 - **Vite** - Fast build tool and dev server
 
 ### Frontend
-- **React 19.2.0** - UI framework
+- **React 19.2.0** - UI framework with modern hooks
 - **React DOM 19.2.0** - React rendering
 - **React Context API** - Global state management (Navigation, Sidebar)
 - **Konva 10.0.8** - 2D canvas library for timeline
 - **React Konva 19.2.0** - React bindings for Konva
-- **CSS-in-JS** - Inline styles with theme system
+- **Tailwind CSS v3** - Utility-first CSS framework
+- **shadcn/ui** - Component library with custom variants
 
 ### Media Processing
 - **ffmpeg-static 5.2.0** - Static FFmpeg binaries
@@ -23,13 +24,14 @@
 ### Development Tools
 - **Vite** - Build tool with HMR
 - **Electron Forge** - Packaging and distribution
+- **PostCSS** - CSS processing with autoprefixer
 - **Node.js** - Runtime environment
 
 ## Current Project Structure
 ```
 my-video-editor/
 ├── src/
-│   ├── contexts/            # 🆕 Global React Contexts
+│   ├── contexts/            # Global React Contexts
 │   │   ├── NavigationContext.jsx  # Global screen routing
 │   │   └── SidebarContext.jsx     # Collapsible sidebar state
 │   ├── shared/              # Shared domain-driven modules
@@ -38,37 +40,25 @@ my-video-editor/
 │   │   │   ├── video/       # Video processing domain
 │   │   │   ├── timeline/    # Timeline calculations domain
 │   │   │   └── export/      # Export functionality domain
-│   │   ├── ui/              # Shared UI components
-│   │   │   ├── theme.js     # 🔧 Legacy theme (timeline)
-│   │   │   ├── darkTheme.js # 🎨 Modern dark theme (PRIMARY)
-│   │   │   ├── Button.jsx   # Button component
-│   │   │   ├── Container.jsx # Container component
+│   │   ├── ui/              # Unified UI components
+│   │   │   ├── darkTheme.js # Single theme system
+│   │   │   ├── Button.jsx   # Unified button component
 │   │   │   ├── ErrorMessage.jsx # Error message component
 │   │   │   ├── StatusMessage.jsx # Status message component
 │   │   │   ├── VideoElement.jsx # Video element wrapper
-│   │   │   └── index.js     # Barrel export
+│   │   │   └── shadcn/      # shadcn/ui components
+│   │   │       ├── Card.jsx # Card component (replaces Container)
+│   │   │       └── Input.jsx # Input component
 │   │   └── core/            # Core application constants
 │   ├── screens/             # Screen-specific UI modules
-│   │   ├── HomeScreen/      # 🆕 Landing screen
-│   │   │   ├── components/
-│   │   │   │   ├── Sidebar.jsx    # 🆕 Global sidebar
-│   │   │   │   ├── Header.jsx     # 🆕 Global header
-│   │   │   │   └── MainContent.jsx
-│   │   │   └── index.jsx
-│   │   ├── ProjectsScreen/  # 🆕 Placeholder
-│   │   ├── RecordingsScreen/ # 🆕 Placeholder
-│   │   ├── VideoImportScreen/
-│   │   │   ├── components/  # Screen-specific components
-│   │   │   ├── hooks/       # Screen-specific hooks
-│   │   │   └── index.jsx    # Screen entry point
-│   │   ├── VideoPreviewScreen/
-│   │   ├── TimelineScreen/
-│   │   └── ExportScreen/
+│   │   ├── HomeScreen/      # Landing screen
+│   │   ├── VideoImportScreen/ # Video import functionality
+│   │   ├── VideoPreviewScreen/ # Video preview functionality
+│   │   └── TimelineScreen/  # Timeline editing functionality
 │   ├── main.js              # Electron main process
 │   ├── preload.js           # Preload script
 │   ├── renderer.jsx         # Renderer process entry
-│   ├── AppWithNavigation.jsx # 🆕 Main app with context providers
-│   └── index.css            # Global styles (CSS reset)
+│   └── AppWithNavigation.jsx # Main app with context providers
 ├── index.html               # HTML entry point
 ├── package.json             # Dependencies and scripts
 ├── forge.config.js          # Electron Forge configuration
@@ -95,10 +85,11 @@ my-video-editor/
 
 ## Technical Constraints
 
-### Electron Security
+### Electron 39 Security
 - **Node Integration**: Disabled in renderer process
 - **Context Isolation**: Enabled for security
 - **Preload Script**: Required for secure IPC communication
+- **Custom Protocol**: app:// for secure file serving
 
 ### File System Access
 - **Sandboxed**: Renderer process cannot access files directly
@@ -110,13 +101,62 @@ my-video-editor/
 - **Process Isolation**: Media processing in main process
 - **Memory Management**: Large video files require careful handling
 
+## React 19 Best Practices
+
+### Component Patterns
+- **Component Composition**: Use composition over conditional logic
+- **Hook Consistency**: Call same hooks every render
+- **Performance**: Optimize re-rendering with proper dependencies
+- **Modern Hooks**: useEffectEvent for stable callbacks
+
+### State Management
+- **Context API**: Global state for navigation and sidebar
+- **Local State**: Component-specific state with useState
+- **Session Storage**: Persist video state across navigation
+- **Error Handling**: Comprehensive error states and user feedback
+
+### Performance Optimization
+- **Memoization**: Use React.memo for expensive components
+- **Dependency Arrays**: Proper useEffect dependencies
+- **Event Handlers**: useEffectEvent for stable callbacks
+- **Cleanup**: Proper cleanup in useEffect
+
+## Konva.js 10 Performance
+
+### React-Konva Integration
+- **Declarative Components**: Use React-Konva for canvas elements
+- **Automatic Batching**: React-Konva handles draw() optimization
+- **Event Handling**: Efficient drag and drop with constraints
+- **Memory Management**: Cleanup on component unmount
+
+### Canvas Optimization
+- **Layer Management**: Use appropriate layer structure
+- **Event Handling**: Efficient event listeners
+- **Rendering**: Optimize for smooth interactions
+- **Memory**: Proper cleanup of canvas resources
+
+## Tailwind CSS v3 + shadcn/ui
+
+### Styling System
+- **Utility-First**: Use Tailwind utility classes
+- **Component Variants**: Custom variants for shadcn/ui components
+- **Theme System**: Unified darkTheme.js with custom properties
+- **Responsive Design**: Mobile-first responsive design
+
+### Component Library
+- **Button**: Unified component with Tailwind CSS
+- **Card**: Modern Card component with variants
+- **Input**: Form input component
+- **Error Handling**: ErrorMessage and StatusMessage components
+
 ## Dependencies Analysis
 
 ### Current Dependencies
 - **Electron**: Core desktop framework
-- **React**: UI framework
+- **React**: UI framework with modern hooks
 - **Konva**: Timeline canvas library
 - **FFmpeg**: Media processing (static binaries)
+- **Tailwind CSS**: Utility-first CSS framework
 
 ### Missing Dependencies
 - **fluent-ffmpeg**: Node.js FFmpeg wrapper (to be added)
@@ -129,6 +169,7 @@ my-video-editor/
 - **Main Process**: Node.js target with Electron APIs
 - **Renderer Process**: Browser target with React
 - **Preload Script**: Node.js target with limited APIs
+- **HMR**: Hot module replacement for development
 
 ### Electron Forge
 - **Packaging**: ASAR archive for distribution
@@ -141,16 +182,35 @@ my-video-editor/
 - **Future**: Windows (Squirrel installer)
 
 ## Performance Considerations
-- **Video Loading**: Efficient file handling for large video files
-- **Timeline Rendering**: Konva.js for smooth canvas interactions
-- **Memory Usage**: Proper cleanup of video resources
-- **FFmpeg Processing**: Background processing for exports
-- **UI Transitions**: CSS transitions (0.2s-0.3s) for smooth animations
-- **Layout Reflows**: Flexbox with `overflow: hidden` to prevent scrollbars
-- **Context Updates**: Optimized context providers to minimize re-renders
+
+### React 19 Optimization
+- **Component Separation**: Avoid conditional hook calls
+- **Dependency Arrays**: Proper useEffect dependencies
+- **Memoization**: Use React.memo for expensive components
+- **Event Handlers**: useEffectEvent for stable callbacks
+
+### Konva.js Performance
+- **React-Konva**: Declarative components with automatic batching
+- **Event Handling**: Efficient drag and drop with constraints
+- **Memory Management**: Proper cleanup on unmount
+- **Canvas Optimization**: Use appropriate canvas settings
+
+### Electron Performance
+- **IPC Efficiency**: Minimize IPC calls, batch operations
+- **File Handling**: Efficient file operations with proper cleanup
+- **Memory Management**: Cleanup video resources properly
+- **Background Processing**: Use worker threads for heavy operations
 
 ## Security Considerations
-- **File Access**: Sandboxed file operations
-- **IPC Security**: Secure communication between processes
-- **Code Signing**: Required for macOS distribution
-- **ASAR Integrity**: Validation of packaged resources
+
+### Electron Security
+- **Context Isolation**: Enabled for security
+- **Preload Scripts**: Secure IPC communication bridge
+- **Custom Protocol**: app:// for secure file serving
+- **File Access**: Sandboxed with proper IPC handlers
+
+### File Handling
+- **Validation**: Comprehensive file type and size validation
+- **Error Handling**: Proper error states and user feedback
+- **Cleanup**: Proper resource cleanup on errors
+- **Security**: No direct file system access from renderer

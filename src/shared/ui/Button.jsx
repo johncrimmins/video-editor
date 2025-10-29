@@ -1,95 +1,59 @@
 import React from 'react';
-import { colors, borderRadius, fontSizes, spacing } from './theme';
+import { cn } from '../../lib/utils';
 
 /**
- * Shared Button component with variants
+ * Unified Button component with Tailwind CSS and shadcn/ui patterns
+ * Consolidates legacy Button and shadcn Button functionality
+ * 
  * @param {Object} props
- * @param {string} props.variant - Button variant: 'primary', 'secondary', 'success', 'danger'
- * @param {string} props.size - Button size: 'sm', 'md', 'lg'
- * @param {boolean} props.disabled - Disabled state
- * @param {Function} props.onClick - Click handler
  * @param {React.ReactNode} props.children - Button content
+ * @param {string} props.variant - Button variant (primary, secondary, success, danger, ghost)
+ * @param {string} props.size - Button size (sm, md, lg)
+ * @param {string} props.className - Additional CSS classes
  * @param {Object} props.style - Additional inline styles
+ * @param {Function} props.onClick - Click handler
+ * @param {boolean} props.disabled - Disabled state
+ * @param {string} props.type - Button type
  */
 const Button = ({ 
+  children, 
   variant = 'primary', 
-  size = 'md',
-  disabled = false,
-  onClick,
-  children,
+  size = 'md', 
+  className = '', 
   style = {},
-  ...props
+  onClick,
+  disabled = false,
+  type = 'button',
+  ...props 
 }) => {
-  const getVariantStyles = () => {
-    const variants = {
-      primary: {
-        backgroundColor: disabled ? colors.secondary : colors.primary,
-        color: 'white',
-      },
-      secondary: {
-        backgroundColor: colors.secondary,
-        color: 'white',
-      },
-      success: {
-        backgroundColor: colors.success,
-        color: 'white',
-      },
-      danger: {
-        backgroundColor: colors.danger,
-        color: 'white',
-      },
-    };
-    return variants[variant] || variants.primary;
+  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  
+  const variantClasses = {
+    primary: 'bg-primary text-text hover:bg-primary-hover focus:ring-primary',
+    secondary: 'bg-background-secondary text-text border border-border hover:bg-hover focus:ring-primary',
+    success: 'bg-success text-text hover:bg-success/90 focus:ring-success',
+    danger: 'bg-error text-text hover:bg-error/90 focus:ring-error',
+    ghost: 'bg-transparent text-text-secondary hover:bg-hover focus:ring-primary',
   };
-
-  const getSizeStyles = () => {
-    const sizes = {
-      sm: {
-        padding: `${spacing.sm} ${spacing.md}`,
-        fontSize: fontSizes.sm,
-      },
-      md: {
-        padding: `${spacing.md} ${spacing.lg}`,
-        fontSize: fontSizes.sm,
-      },
-      lg: {
-        padding: `${spacing.lg} ${spacing.xl}`,
-        fontSize: fontSizes.md,
-      },
-    };
-    return sizes[size] || sizes.md;
+  
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-3 text-base',
   };
-
-  const baseStyles = {
-    border: 'none',
-    borderRadius: borderRadius.sm,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'background-color 0.2s',
-    opacity: disabled ? 0.5 : 1,
-    ...getVariantStyles(),
-    ...getSizeStyles(),
-    ...style,
-  };
-
-  const handleMouseOver = (e) => {
-    if (!disabled && variant === 'primary') {
-      e.target.style.backgroundColor = colors.primaryHover;
-    }
-  };
-
-  const handleMouseOut = (e) => {
-    if (!disabled && variant === 'primary') {
-      e.target.style.backgroundColor = colors.primary;
-    }
-  };
-
+  
   return (
     <button
+      type={type}
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        sizeClasses[size],
+        className
+      )}
+      style={style}
       onClick={onClick}
       disabled={disabled}
-      style={baseStyles}
-      onMouseOver={handleMouseOver}
-      onMouseOut={handleMouseOut}
       {...props}
     >
       {children}

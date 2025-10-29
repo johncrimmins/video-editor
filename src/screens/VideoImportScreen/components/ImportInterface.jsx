@@ -1,5 +1,5 @@
 import React from 'react';
-import useFileImport from '../hooks/useFileImport';
+import { useFileImport } from '../../../shared/hooks';
 import { Button, Card, ErrorMessage } from '../../../shared/ui';
 import { formatFileSize } from '../../../shared/domains/file';
 

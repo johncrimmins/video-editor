@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../../shared/ui/shadcn';
+import { Button } from '../../../shared/ui';
 
 /**
  * EmptyEditorState - Shows when no video is loaded in the editor

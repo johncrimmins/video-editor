@@ -1,7 +1,7 @@
 # System Patterns: Clipforge MVP
 
 ## Architecture Overview
-Desktop application built with Electron, using React for the frontend and FFmpeg for media processing.
+Desktop application built with Electron 39, React 19, and Konva.js 10, following modern best practices for performance and maintainability.
 
 ## System Architecture
 ```
@@ -14,23 +14,23 @@ Desktop application built with Electron, using React for the frontend and FFmpeg
 │  └─────────────────────────────────┘│
 └─────────────────────────────────────┘
                    │
-                   │ IPC
+                   │ Secure IPC
                    ▼
 ┌─────────────────────────────────────┐
 │         Electron Renderer           │
 │  ┌─────────────────────────────────┐│
-│  │         React Frontend          ││
+│  │         React 19 Frontend       ││
 │  │  ┌─────────────────────────────┐││
 │  │  │      Video Player           │││
 │  │  │      (HTML5 <video>)        │││
 │  │  └─────────────────────────────┘││
 │  │  ┌─────────────────────────────┐││
 │  │  │      Timeline UI            │││
-│  │  │      (Konva.js)             │││
+│  │  │      (React-Konva)          │││
 │  │  └─────────────────────────────┘││
 │  │  ┌─────────────────────────────┐││
 │  │  │      File Import            │││
-│  │  │      (Drag & Drop)          │││
+│  │  │      (File Picker)          │││
 │  │  └─────────────────────────────┘││
 │  └─────────────────────────────────┘│
 └─────────────────────────────────────┘
@@ -38,469 +38,182 @@ Desktop application built with Electron, using React for the frontend and FFmpeg
 
 ## Key Technical Decisions
 
-### Electron Architecture
-- **Main Process**: Handles file system access, FFmpeg processing, native APIs
-- **Renderer Process**: React frontend with video player and timeline UI
-- **Preload Script**: Secure bridge between main and renderer processes
+### Electron 39 Security Best Practices
+- **Context Isolation**: Enabled for security
+- **Preload Scripts**: Secure bridge between main and renderer processes
+- **Custom Protocol**: app:// for secure video file serving
+- **IPC Security**: Filtered arguments, no direct API exposure
 
-### Frontend Architecture
-- **React Components**: Modular UI components for each feature
-- **State Management**: React state for video clips, timeline data, player state
-- **Event Handling**: Drag & drop, timeline interactions, player controls
+### React 19 Modern Patterns
+- **Component Composition**: Separate components for different concerns
+- **Hook Consistency**: Same hooks called every render, no conditional calls
+- **Performance**: Optimized re-rendering with proper dependency arrays
+- **Modern Hooks**: useEffectEvent for stable callbacks
 
-### Media Processing
-- **FFmpeg Integration**: Server-side processing for video manipulation
-- **File Handling**: Native file system access through Electron APIs
-- **Video Formats**: Focus on MP4/MOV for compatibility
+### Konva.js 10 Performance
+- **React-Konva**: Declarative canvas components
+- **Automatic Batching**: React-Konva handles draw() optimization
+- **Event Handling**: Proper drag constraints and real-time updates
+- **Memory Management**: Cleanup on component unmount
 
-## Design Patterns - Hybrid Domain-Driven Architecture
+## Design Patterns - Unified Component Architecture
 
 ### Architecture Overview
-The codebase uses a **hybrid domain-driven architecture** that combines:
+The codebase uses a **unified component architecture** that combines:
 - **Screens**: Independent, vertically sliced UI modules
 - **Shared Domains**: Domain-driven shared services and utilities
-- **Shared UI**: Reusable UI components and theme system
-- **Core**: Application-wide constants and core functionality
+- **Unified UI**: Single source of truth for all UI components
+- **Global State**: Context-based state management
 
-### Component Structure - Domain-Driven Organization
+### Component Structure
 ```
 src/
-├── contexts/                      # 🆕 Global React Contexts
+├── contexts/                      # Global React Contexts
 │   ├── NavigationContext.jsx     # Global screen routing
 │   └── SidebarContext.jsx        # Collapsible sidebar state
 ├── shared/
-│   ├── domains/
-│   │   ├── file/                  # File domain
-│   │   │   ├── fileValidation.js  # File validation logic
-│   │   │   ├── fileUtils.js       # File utilities
-│   │   │   ├── fileService.js     # IPC file operations
-│   │   │   └── index.js           # Barrel export
-│   │   ├── video/                 # Video domain
-│   │   │   ├── videoUtils.js      # Video utilities
-│   │   │   ├── videoService.js    # IPC video operations
-│   │   │   └── index.js           # Barrel export
-│   │   ├── timeline/              # Timeline domain
-│   │   │   ├── timelineUtils.js   # Timeline utilities
-│   │   │   ├── timelineService.js # Timeline calculations + trim logic
-│   │   │   └── index.js           # Barrel export
-│   │   └── export/                # Export domain (future)
-│   │       └── index.js           # Placeholder
-│   ├── ui/                        # Shared UI components
-│   │   ├── theme.js               # 🔧 Legacy theme (timeline components)
-│   │   ├── darkTheme.js           # 🎨 Modern dark theme (primary UI)
-│   │   ├── Button.jsx             # Reusable button component
-│   │   ├── Container.jsx          # Container/card component
-│   │   ├── ErrorMessage.jsx       # Error message component
-│   │   ├── StatusMessage.jsx      # Status message component
-│   │   ├── VideoElement.jsx       # Video element wrapper
-│   │   └── index.js               # Barrel export
+│   ├── domains/                  # Domain-driven shared code
+│   │   ├── file/                 # File operations domain
+│   │   ├── video/                # Video processing domain
+│   │   ├── timeline/             # Timeline calculations domain
+│   │   └── export/               # Export functionality domain
+│   ├── ui/                       # Unified UI components
+│   │   ├── darkTheme.js          # Single theme system
+│   │   ├── Button.jsx            # Unified button component
+│   │   ├── ErrorMessage.jsx      # Error message component
+│   │   ├── StatusMessage.jsx     # Status message component
+│   │   ├── VideoElement.jsx      # Video element wrapper
+│   │   └── shadcn/               # shadcn/ui components
+│   │       ├── Card.jsx          # Card component (replaces Container)
+│   │       └── Input.jsx         # Input component
 │   └── core/
-│       └── constants.js           # App-wide constants
-├── screens/
-│   ├── HomeScreen/                # 🆕 Landing screen (home)
-│   │   ├── components/
-│   │   │   ├── Sidebar.jsx        # 🆕 Global collapsible sidebar
-│   │   │   ├── Header.jsx         # 🆕 Global header with actions
-│   │   │   └── MainContent.jsx    # Home screen content
-│   │   └── index.jsx              # Screen entry point
-│   ├── ProjectsScreen/            # 🆕 Projects screen (placeholder)
-│   │   └── index.jsx              # Screen entry point
-│   ├── RecordingsScreen/          # 🆕 Recordings screen (placeholder)
-│   │   └── index.jsx              # Screen entry point
-│   ├── VideoImportScreen/         # Video import UI module
-│   │   ├── components/            # Screen-specific components (.jsx)
-│   │   ├── hooks/                 # Screen-specific hooks (.js)
-│   │   └── index.jsx              # Screen entry point
-│   ├── VideoPreviewScreen/        # Video preview UI module
-│   │   ├── components/            # Screen-specific components (.jsx)
-│   │   ├── hooks/                 # Screen-specific hooks (.js)
-│   │   └── index.jsx              # Screen entry point
-│   ├── TimelineScreen/            # Timeline UI module (refactored)
-│   │   ├── components/            # Screen-specific components (.jsx)
-│   │   │   ├── EmptyEditorScreen.jsx    # 🆕 Empty state + import functionality
-│   │   │   ├── TimelineEditorScreen.jsx # 🆕 Timeline editing functionality
-│   │   │   ├── EmptyEditorState.jsx     # Empty state UI component
-│   │   │   ├── LoadingModal.jsx         # Loading state component
-│   │   │   ├── TimelineCanvas.jsx       # Konva.js timeline canvas
-│   │   │   ├── VideoPreview.jsx         # Video preview component
-│   │   │   └── ControlPanel.jsx         # Timeline control panel
-│   │   ├── hooks/                 # Screen-specific hooks (.js)
-│   │   │   ├── useTimeline.js           # Timeline state management
-│   │   │   └── useTrim.js               # Video trimming functionality
-│   │   └── index.jsx              # Router component (delegates to sub-components)
-│   └── ExportScreen/              # Export UI module (future)
-│       ├── components/            # Screen-specific components (.jsx)
-│       ├── hooks/                 # Screen-specific hooks (.js)
-│       └── index.jsx              # Screen entry point
-├── AppWithNavigation.jsx          # 🆕 Main app with context providers
-└── renderer.jsx                   # Entry point
+│       └── constants.js          # App-wide constants
+├── screens/                      # Screen-specific UI modules
+│   ├── HomeScreen/               # Landing screen
+│   ├── VideoImportScreen/        # Video import functionality
+│   ├── VideoPreviewScreen/       # Video preview functionality
+│   └── TimelineScreen/           # Timeline editing functionality
+└── AppWithNavigation.jsx         # Main app with context providers
 ```
 
 ### Architecture Principles
-1. **Domain-Driven Shared Services** - Common logic organized by domain (file, video, timeline, export)
-2. **Shared UI Components** - Reusable UI components (Button, Container, etc.) with centralized theme
-3. **Screen Independence** - Screens remain independent UI modules with their own components and hooks
-4. **Barrel Exports** - Clean imports via domain/index files (`import { ... } from '../../../shared/domains/file'`)
-5. **No Code Duplication** - Shared utilities, services, and UI components prevent duplication
-6. **Separation of Concerns** - Utils (pure functions) vs Services (IPC operations) vs UI (components)
-7. **Centralized Theme** - Theme constants (colors, spacing, fonts) in shared/ui/theme.js
-8. **Scalable Structure** - Easy to add new domains, UI components, and extend functionality
-9. **Component Composition** - Use composition over conditional logic to avoid React hooks violations
-10. **Consistent Hook Patterns** - Each component calls the same hooks every render, following React best practices
+1. **Unified Component System** - Single source of truth for UI components
+2. **Domain-Driven Shared Services** - Common logic organized by domain
+3. **Screen Independence** - Screens remain independent UI modules
+4. **Global State Management** - Context-based state for app-wide data
+5. **Modern React Patterns** - Component composition over conditional logic
+6. **Performance Optimization** - Optimized rendering and memory management
 
-### Domain Organization
-Each domain contains:
-- **Utils**: Pure utility functions (no side effects)
-- **Services**: IPC-based operations (side effects, async operations)
-- **Validation**: Input validation logic
-- **Barrel Export**: Single import point via `index.js`
+## Component Patterns
 
-### Data Flow - Per Screen
-Each screen manages its own complete data flow:
-1. **VideoImportScreen**: File Selection → Validation → Storage → Navigation
-2. **VideoPreviewScreen**: File Loading → Player Setup → Controls → Navigation
-3. **TimelineScreen**: 
-   - **Empty State**: File Selection → Validation → Import → Navigation
-   - **Timeline State**: Clip Management → Timeline Rendering → Interactions → Navigation
-4. **ExportScreen**: Export Setup → Processing → Progress → Completion
+### React 19 Best Practices
+- **Component Composition**: Use composition over conditional logic
+- **Hook Consistency**: Call same hooks every render
+- **Performance**: Optimize re-rendering with proper dependencies
+- **Modern Patterns**: useEffectEvent for stable callbacks
 
-### Component Composition Pattern - TimelineScreen Refactoring
-The TimelineScreen demonstrates a key architectural pattern for handling conditional functionality:
+### Unified UI Components
+- **Button**: Single component with Tailwind CSS and shadcn/ui patterns
+- **Card**: Modern Card component with variants (replaces Container)
+- **Theme**: Unified darkTheme.js with legacy compatibility
+- **Error Handling**: Comprehensive error states and user feedback
 
-**Problem**: React hooks must be called in the same order every render, but TimelineScreen needed different behavior for empty vs loaded states.
-
-**Solution**: Component composition with dedicated sub-components:
-- **TimelineScreen (Router)**: Simple conditional rendering, no hooks
-- **EmptyEditorScreen**: Handles import functionality, calls useFileImport hook consistently
-- **TimelineEditorScreen**: Handles timeline functionality, calls timeline hooks consistently
-
-**Benefits**:
-- ✅ No React hooks order violations
-- ✅ Clear separation of concerns
-- ✅ Easy to test and maintain
-- ✅ Follows React best practices
-- ✅ Each component has single responsibility
-
-### State Management - Per Screen
-Each screen manages its own state independently:
-- **VideoImportScreen**: Import state, file validation, error handling
-- **VideoPreviewScreen**: Player state, video metadata, playback controls
-- **TimelineScreen**: Timeline state, clip positions, trim points
-- **ExportScreen**: Export state, progress, output settings
-
-## Component Relationships - Screen-Based
-- **VideoImportScreen** → **VideoPreviewScreen**: Pass file data via navigation
-- **VideoPreviewScreen** → **TimelineScreen**: Pass video data via navigation
-- **TimelineScreen** → **ExportScreen**: Pass timeline data via navigation
-- **App.js**: Manages screen routing and navigation between modules
-
-## Refactoring Strategy
-Code organization follows domain-driven principles:
-1. **Shared Utilities**: Common pure functions go to domain utils
-2. **Shared Services**: IPC operations go to domain services
-3. **Shared UI Components**: Reusable UI components (buttons, containers, messages) in shared/ui
-4. **Theme System**: Centralized styling constants in shared/ui/theme.js
-5. **Screen-Specific Logic**: UI-specific logic stays in screens
-6. **Domain Cohesion**: Related functionality grouped by domain
-7. **Barrel Exports**: Clean imports via domain/index files
-
-## Shared UI Components
-The codebase includes reusable UI components to eliminate duplication:
-- **Button**: Variants (primary, secondary, success, danger), sizes (sm, md, lg)
-- **Container**: Variants (card, dashed, solid) for consistent container styling
-- **ErrorMessage**: Standardized error message display
-- **StatusMessage**: Success/error status messages
-- **VideoElement**: Wrapper for video elements with trim point syncing
-- **Theme**: Centralized colors, spacing, fonts, borders, shadows
-
-### 🎨 UI Theme System - WHERE TO FIND STYLING
-
-#### **Modern Dark Theme** (Primary UI)
-📍 **Location**: `src/shared/ui/darkTheme.js`
-
-**When to use**: For ALL new UI components and screens (Home, Projects, Recordings, Sidebar, Header)
-
-**Color Palette**:
-```javascript
-{
-  background: '#0f0f0f',           // Main app background
-  backgroundSecondary: '#1a1a1a',  // Cards, containers
-  sidebar: '#0a0a0a',              // Sidebar background
-  card: '#1a1a1a',                 // Card backgrounds
-  border: '#2a2a2a',               // Borders
-  primary: '#6366f1',              // Purple accent (buttons, active states)
-  primaryHover: '#4f46e5',         // Purple hover state
-  text: '#ffffff',                 // Primary text
-  textSecondary: '#a0a0a0',        // Secondary text
-  textMuted: '#666666',            // Muted text
-  inputBackground: '#2a2a2a',      // Input backgrounds
-  inputBorder: '#4a4a4a',          // Input borders
-  hover: '#2a2a2a',                // Hover states
-}
-```
-
-**Spacing, Typography, Border Radius**: All defined in `darkTheme.js`
-
-#### **Legacy Theme** (Timeline Components)
-📍 **Location**: `src/shared/ui/theme.js`
-
-**When to use**: Only for existing timeline/editor components that haven't been migrated yet
-
-**Note**: Eventually, timeline components should migrate to dark theme for consistency
-
-#### **Global Layout Components**
-📍 **Sidebar**: `src/screens/HomeScreen/components/Sidebar.jsx`
-- Collapsible navigation (240px expanded, 64px collapsed)
-- Smooth transitions (0.3s ease)
-- Uses `SidebarContext` for state management
-
-📍 **Header**: `src/screens/HomeScreen/components/Header.jsx`
-- Fixed height: 60px
-- Action buttons (New Project, Record)
-- Profile, Docs, Chat buttons (placeholders)
-
-#### **How to Apply Theme to New Components**
-```javascript
-import { darkTheme, darkSpacing, darkBorderRadius } from '../../shared/ui/darkTheme';
-
-const styles = {
-  container: {
-    backgroundColor: darkTheme.background,
-    padding: darkSpacing.lg,
-    borderRadius: darkBorderRadius.md,
-  },
-  button: {
-    backgroundColor: darkTheme.primary,
-    color: darkTheme.text,
-  }
-};
-```
-
-## Screen Communication & Global State
-
-### **Navigation System** 🧭
-📍 **Location**: `src/contexts/NavigationContext.jsx`
-
-**Purpose**: Global screen routing without prop drilling
-
-**API**:
-```javascript
-const { currentScreen, selectedVideoFile, setSelectedVideoFile, navigate } = useNavigation();
-
-// Navigate to a screen
-navigate('home');        // Home screen
-navigate('projects');    // Projects screen
-navigate('recordings');  // Recordings screen
-navigate('editor');      // Timeline/Editor screen
-navigate('import');      // Video import screen
-navigate('preview');     // Video preview screen
-```
-
-**State Management**:
-- `currentScreen`: Current active screen ID
-- `selectedVideoFile`: Video file data passed between screens
-- `setSelectedVideoFile`: Update video file state
-- `navigate(screenId)`: Change active screen
-
-### **Sidebar System** 📐
-📍 **Location**: `src/contexts/SidebarContext.jsx`
-
-**Purpose**: Global collapsible sidebar state
-
-**API**:
-```javascript
-const { isCollapsed, toggleSidebar, sidebarWidth, collapsedWidth, expandedWidth } = useSidebar();
-
-// Toggle sidebar
-toggleSidebar();
-
-// Use dynamic width for layout
-<div style={{ marginLeft: `${sidebarWidth}px` }}>
-  {/* Content adjusts when sidebar collapses */}
-</div>
-```
-
-**Constants**:
-- `expandedWidth`: 240px
-- `collapsedWidth`: 64px
-- `sidebarWidth`: Dynamic (240px or 64px based on `isCollapsed`)
-
-### **Screen Layout Pattern** 📱
-All screens follow this consistent layout:
-
-```javascript
-import Sidebar from '../HomeScreen/components/Sidebar';
-import Header from '../HomeScreen/components/Header';
-import { useSidebar } from '../../contexts/SidebarContext';
-
-const MyScreen = () => {
-  const { sidebarWidth } = useSidebar();
-  
-  return (
-    <div style={styles.container}>
-      <Sidebar />
-      <div style={{
-        ...styles.mainArea,
-        marginLeft: `${sidebarWidth}px`,  // Dynamic margin
-      }}>
-        <Header />
-        <div style={styles.content}>
-          {/* Screen content here */}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: darkTheme.background,
-    overflow: 'hidden',
-  },
-  mainArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    transition: 'margin-left 0.3s ease',  // Smooth sidebar transition
-  },
-  content: {
-    marginTop: '60px',  // Header height
-    flex: 1,
-    overflow: 'hidden',
-  },
-};
-```
-
-### **Legacy Screen Communication**
+### Screen Communication
 - **Navigation-Based**: Pass data through screen navigation
-- **No Direct Dependencies**: Screens don't import from each other
-- **Data Passing**: Use props or navigation state for data transfer
-- **Event System**: Use simple event system if needed for loose coupling
-## Security Considerations
-- **Preload Script**: Secure IPC communication
-- **File Access**: Sandboxed file operations
-- **FFmpeg**: Process isolation for media processing
-- **No Node Integration**: Renderer process security
+- **Context State**: Global state for app-wide data
+- **Session Storage**: Persist video state across navigation
+- **Event System**: Simple event system for loose coupling
+
+## Data Flow Patterns
+
+### Video Import Flow
+```
+User clicks "Import" → File Dialog (IPC) → File Validation → 
+Video Metadata Extraction (FFmpeg) → State Storage (sessionStorage) → 
+Navigation to Preview Screen
+```
+
+### Video Preview Flow
+```
+Video File Data → Custom app:// Protocol → HTML5 Video Element → 
+Playback Controls → Navigation to Timeline Editor
+```
+
+### Timeline Editing Flow
+```
+Video File → React-Konva Canvas → Drag Handles → Trim Points → 
+FFmpeg Processing → Updated Video File
+```
+
+### State Management
+- **NavigationContext**: currentScreen, selectedVideoFile
+- **SidebarContext**: isCollapsed, sidebarWidth
+- **sessionStorage**: Video persistence across navigation
 
 ## Performance Patterns
-- **Lazy Loading**: Load video metadata on demand
-- **Efficient Rendering**: Konva.js for smooth timeline interactions
-- **Background Processing**: FFmpeg operations in worker threads
-- **Memory Management**: Proper cleanup of video resources
+
+### React 19 Optimization
+- **Component Separation**: Avoid conditional hook calls
+- **Dependency Arrays**: Proper useEffect dependencies
+- **Memoization**: Use React.memo for expensive components
+- **Event Handlers**: useEffectEvent for stable callbacks
+
+### Konva.js Performance
+- **React-Konva**: Declarative components with automatic batching
+- **Event Handling**: Efficient drag and drop with constraints
+- **Memory Management**: Proper cleanup on unmount
+- **Canvas Optimization**: Use appropriate canvas settings
+
+### Electron Performance
+- **IPC Efficiency**: Minimize IPC calls, batch operations
+- **File Handling**: Efficient file operations with proper cleanup
+- **Memory Management**: Cleanup video resources properly
+- **Background Processing**: Use worker threads for heavy operations
+
+## Security Patterns
+
+### Electron Security
+- **Context Isolation**: Enabled for security
+- **Preload Scripts**: Secure IPC communication bridge
+- **Custom Protocol**: app:// for secure file serving
+- **File Access**: Sandboxed with proper IPC handlers
+
+### File Handling
+- **Validation**: Comprehensive file type and size validation
+- **Error Handling**: Proper error states and user feedback
+- **Cleanup**: Proper resource cleanup on errors
+- **Security**: No direct file system access from renderer
 
 ## Build & Packaging Patterns
 
-### Electron Forge + Vite Configuration
-- **Electron Forge**: Used for packaging and distribution
-- **Vite Plugin**: Integrates Vite bundling with Electron Forge
-- **Build Structure**: 
-  - Main process: `.vite/build/main.js`
-  - Preload: `.vite/build/preload.js`
-  - Renderer: `.vite/renderer/{name}/index.html` (must match Electron Forge expectations)
+### Vite + Electron Forge
+- **Main Process**: Node.js target with Electron APIs
+- **Renderer Process**: Browser target with React
+- **Preload Script**: Node.js target with limited APIs
+- **Packaging**: ASAR archive for distribution
 
-### Vite Renderer Configuration
-**Critical**: The renderer `outDir` must be set to `.vite/renderer/{name}/` where `{name}` matches the renderer name in `forge.config.js` (e.g., `main_window`).
+### Development Workflow
+- **Hot Reload**: Vite HMR for development
+- **Type Safety**: Proper TypeScript integration
+- **Linting**: ESLint for code quality
+- **Testing**: Jest for unit testing (future)
 
-**Correct Configuration** (`vite.renderer.config.mjs`):
-```javascript
-export default defineConfig({
-  build: {
-    outDir: '.vite/renderer/main_window', // Must match Electron Forge structure
-    emptyOutDir: true
-  }
-});
-```
+## Code Organization Patterns
 
-### Packaging Process
-1. **Development**: Vite dev server serves renderer at `http://localhost:5173`
-2. **Production Build**: 
-   - Vite builds renderer to `.vite/renderer/main_window/`
-   - Electron Forge packages everything into ASAR
-   - Main process loads renderer from ASAR using `loadFile()`
+### File Naming
+- **Components**: PascalCase (Button.jsx, VideoElement.jsx)
+- **Hooks**: camelCase with use prefix (useFileImport.js)
+- **Utilities**: camelCase (fileUtils.js, videoUtils.js)
+- **Services**: camelCase with Service suffix (fileService.js)
 
-### Renderer Loading Pattern
-- **Dev Mode**: `mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)`
-- **Prod Mode**: `mainWindow.loadFile(path.join(__dirname, '../renderer/${MAIN_WINDOW_VITE_NAME}/index.html'))`
-- Path resolution: From `.vite/build/` (main.js location) to `.vite/renderer/{name}/` (renderer location)
+### Import Patterns
+- **Barrel Exports**: Use index.js for clean imports
+- **Relative Imports**: Use relative paths for local imports
+- **Absolute Imports**: Use absolute paths for shared code
+- **Named Exports**: Prefer named exports over default exports
 
-## UI Refactoring Progress - Phase 4 Complete
-
-### Phase 2 Complete: Layout Components & UI Wrappers
-**Status**: ✅ Complete
-- **ScreenLayout.jsx** - Base wrapper component (Sidebar + Header + Content)
-- **SidebarLayout.jsx** - Extracted sidebar logic with Tailwind classes
-- **ScreenHeader.jsx** - Extracted header logic with Tailwind classes
-- **MainContent.jsx** - Standardized content area component
-- **Screen Templates** - BasicScreen, VideoScreen, EditorScreen templates
-- **shadcn/ui Wrappers** - Button, Card, Input components with custom variants
-- **Feature Flag System** - Simple environment variable system for gradual migration
-
-### Phase 3 Complete: Screen Migration & Layout Standardization
-**Status**: ✅ Complete
-- **HomeScreenV2** - Using BasicScreen template with shadcn/ui Card components
-- **ProjectsScreenV2** - Using BasicScreen template with shadcn/ui Card components
-- **RecordingsScreenV2** - Using BasicScreen template with shadcn/ui Card components
-- **VideoImportScreenV2** - Using VideoScreen template (maintains ImportInterface)
-- **VideoPreviewScreenV2** - Using VideoScreen template (maintains VideoPlayer)
-- **TimelineScreenV2** - Using EditorScreen template with shadcn/ui components
-
-### Phase 4 Complete: Theme Migration & Code Cleanup
-**Status**: ✅ Complete
-- **V2 Screen Migration** - All screens now use modern Tailwind + shadcn/ui system
-- **Inline Style Removal** - All inline styles replaced with Tailwind utility classes
-- **V1 Screen Cleanup** - Old V1 screens removed, V2 screens renamed to main screens
-- **Component Migration** - All components use shadcn/ui versions (Button, Card, etc.)
-- **Theme Consolidation** - Migrated from old theme.js to Tailwind custom properties
-- **Dead Code Removal** - Removed unused components and old HomeScreen components
-- **Bundle Optimization** - Eliminated duplicate code and optimized imports
-
-### Key Achievements
-- **Code Reduction**: ~50-70% reduction in screen boilerplate code
-- **Tailwind Integration**: All V2 screens use Tailwind utility classes
-- **Zero Breaking Changes**: Original screens remain fully functional
-- **Consistent Layout**: All V2 screens use standardized templates
-- **Modern Components**: shadcn/ui integration with custom variants
-- **Feature Flag Ready**: Environment variable system for gradual rollout
-
-### Current Architecture (Post Phase 4)
-```
-src/
-├── shared/
-│   ├── layouts/                    # Layout components
-│   │   ├── ScreenLayout.jsx        # Base wrapper with Tailwind classes
-│   │   ├── SidebarLayout.jsx       # Extracted sidebar with Tailwind classes
-│   │   ├── ScreenHeader.jsx        # Extracted header with Tailwind classes
-│   │   ├── MainContent.jsx         # Content area
-│   │   └── templates/              # Screen templates
-│   │       ├── BasicScreen.jsx     # For Home, Projects, Recordings
-│   │       ├── VideoScreen.jsx     # For Import, Preview
-│   │       └── EditorScreen.jsx    # For Timeline
-│   └── ui/
-│       ├── shadcn/                 # shadcn/ui components
-│       │   ├── Button.jsx          # Custom variants with Tailwind
-│       │   ├── Card.jsx            # Replaces Container with Tailwind
-│       │   └── Input.jsx           # For forms with Tailwind
-│       ├── ErrorMessage.jsx        # Updated with Tailwind classes
-│       ├── StatusMessage.jsx       # Legacy component (still used)
-│       ├── VideoElement.jsx        # Legacy component (still used)
-│       └── darkTheme.js            # Theme constants (mapped to Tailwind)
-├── screens/
-│   ├── HomeScreen/
-│   │   └── index.jsx               # Modern Tailwind + shadcn/ui version
-│   ├── ProjectsScreen/
-│   │   └── index.jsx               # Modern Tailwind + shadcn/ui version
-│   └── [other screens...]          # All modernized
-└── hooks/
-    └── useComponentVersion.js      # Feature flag system (no longer needed)
-```
-
-### Next Phase: Export Functionality & Final Polish
-**Goal**: Complete the MVP with export functionality and final testing
-- Add FFmpeg export functionality to create final video
-- Test complete workflow from import to export
-- Package and test distributable macOS app
-- Final UI polish and performance optimization
+### Error Handling
+- **Try-Catch**: Wrap async operations in try-catch
+- **Error Boundaries**: Use React error boundaries for UI errors
+- **User Feedback**: Show meaningful error messages
+- **Logging**: Use console.error for debugging, not console.log

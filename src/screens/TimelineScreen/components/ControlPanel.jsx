@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '../../../shared/ui/shadcn';
+import { Button } from '../../../shared/ui';
 
 const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBackToPreview }) => {
   const [isTrimming, setIsTrimming] = useState(false);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Line, Text as KonvaText, Rect } from 'react-konva';
 import { getDefaultTimelineDimensions, positionToTime, timeToPosition } from '../../../shared/domains/timeline';
 import ClipBlock from './ClipBlock';
-import { Button } from '../../../shared/ui/shadcn';
+import { Button } from '../../../shared/ui';
 
 const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
   const [dimensions, setDimensions] = useState(getDefaultTimelineDimensions());

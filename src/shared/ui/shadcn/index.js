@@ -3,7 +3,6 @@
  * Provides unified access to all shadcn wrapper components
  */
 
-export { default as Button } from './Button';
 export { 
   Card, 
   CardHeader, 
