@@ -4,6 +4,11 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    asarUnpack: [
+      // Unpack static ffmpeg/ffprobe binaries so they are executable at runtime
+      'node_modules/ffmpeg-static/**',
+      'node_modules/ffprobe-static/**'
+    ],
   },
   rebuildConfig: {},
   makers: [
