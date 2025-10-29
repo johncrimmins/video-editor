@@ -24,6 +24,11 @@
 - **Global Navigation**: Context-based navigation system (`src/contexts/NavigationContext.jsx`)
 - **Collapsible Sidebar**: Global sidebar state management (`src/contexts/SidebarContext.jsx`)
 - **Layout System**: Consistent Sidebar + Header layout across all screens
+- **Phase 2 UI Refactoring**: Layout components and shadcn/ui wrappers complete
+  - **Layout Components**: ScreenLayout, SidebarLayout, ScreenHeader, MainContent
+  - **Screen Templates**: BasicScreen, VideoScreen, EditorScreen
+  - **shadcn/ui Wrappers**: Button, Card, Input with custom variants
+  - **Feature Flag System**: Environment variable system for gradual migration
 
 ### Video Import Feature
 - **VideoImportScreen**: Complete standalone module with file picker
