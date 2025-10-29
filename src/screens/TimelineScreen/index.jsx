@@ -4,6 +4,8 @@ import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
 import useTimeline from './hooks/useTimeline';
 import useTrim from './hooks/useTrim';
+import { Button, Container, ErrorMessage } from '../../shared/ui';
+import { colors, spacing, fontSizes } from '../../shared/ui/theme';
 
 const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   // Check for invalid video duration before proceeding
@@ -16,42 +18,21 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
         alignItems: 'center', 
         height: '100vh',
         fontFamily: 'Arial, sans-serif',
-        padding: '20px',
+        padding: spacing.xl,
         textAlign: 'center'
       }}>
-        <h2 style={{ marginBottom: '20px', color: '#d63031' }}>
+        <h2 style={{ marginBottom: spacing.xl, color: colors.danger }}>
           ⚠️ Invalid Video Duration
         </h2>
-        <div style={{
-          padding: '20px',
-          border: '2px solid #d63031',
-          borderRadius: '8px',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          maxWidth: '500px',
-          marginBottom: '20px'
-        }}>
-          <p style={{ marginBottom: '10px' }}>
-            <strong>Error:</strong> Could not extract video duration (got: {videoFile?.duration || 'undefined'} seconds)
-          </p>
-          <p style={{ marginBottom: '0' }}>
-            This usually means the video file is corrupted or in an unsupported format.
-          </p>
-        </div>
-        <button
-          onClick={onBackToPreview}
-          style={{
-            padding: '12px 24px',
-            fontSize: '16px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+        <Container variant="card" style={{ maxWidth: '500px', marginBottom: spacing.xl, borderColor: colors.danger }}>
+          <ErrorMessage 
+            message={`Could not extract video duration (got: ${videoFile?.duration || 'undefined'} seconds). This usually means the video file is corrupted or in an unsupported format.`}
+            style={{ marginBottom: 0 }}
+          />
+        </Container>
+        <Button variant="primary" size="lg" onClick={onBackToPreview}>
           ← Back to Preview
-        </button>
+        </Button>
       </div>
     );
   }
@@ -95,7 +76,7 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
       padding: '20px',
       overflow: 'auto'
     }}>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>
+      <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
         Timeline Editor
       </h2>
       
@@ -112,21 +93,14 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
           />
         </div>
       ) : (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          border: '2px dashed #ccc',
-          borderRadius: '8px',
-          backgroundColor: '#f9f9f9',
-          minWidth: '300px'
-        }}>
-          <h3 style={{ marginBottom: '20px', color: '#333' }}>
+        <Container variant="dashed" style={{ minWidth: '300px' }}>
+          <h3 style={{ marginBottom: spacing.xl, color: colors.dark }}>
             No Video Selected
           </h3>
-          <p style={{ color: '#666' }}>
+          <p style={{ color: colors.textSecondary }}>
             Please go back to the preview screen to select a video file.
           </p>
-        </div>
+        </Container>
       )}
     </div>
   );

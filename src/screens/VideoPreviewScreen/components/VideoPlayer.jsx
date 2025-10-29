@@ -1,5 +1,7 @@
 import React from 'react';
 import useVideoPlayer from '../hooks/useVideoPlayer';
+import { Button, Container, VideoElement } from '../../../shared/ui';
+import { colors, spacing, fontSizes } from '../../../shared/ui/theme';
 
 console.log('🎥 VideoPlayer.jsx: VideoPlayer component loading...');
 
@@ -35,105 +37,55 @@ const VideoPlayer = ({ videoFile, onBackToImport, onGoToTimeline }) => {
   if (!videoFile) {
     console.log('🎥 VideoPlayer.jsx: No video file provided, showing message');
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '40px',
-        border: '2px dashed #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9',
-        minWidth: '300px'
-      }}>
-        <h2 style={{ marginBottom: '20px', color: '#333' }}>
+      <Container variant="dashed" style={{ minWidth: '300px' }}>
+        <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
           No Video Selected
         </h2>
-        <p style={{ color: '#666' }}>
+        <p style={{ color: colors.textSecondary }}>
           Please go back to the import screen to select a video file.
         </p>
-      </div>
+      </Container>
     );
   }
 
   if (!isVideoReady) {
     console.log('🎥 VideoPlayer.jsx: Video not ready, showing loading message');
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '40px',
-        border: '2px dashed #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9',
-        minWidth: '300px'
-      }}>
-        <h2 style={{ marginBottom: '20px', color: '#333' }}>
+      <Container variant="dashed" style={{ minWidth: '300px' }}>
+        <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
           Loading Video...
         </h2>
-        <p style={{ color: '#666' }}>
+        <p style={{ color: colors.textSecondary }}>
           Preparing video for playback
         </p>
-      </div>
+      </Container>
     );
   }
 
   console.log('🎥 VideoPlayer.jsx: Rendering video element with URL:', videoUrl);
   return (
-    <div style={{
-      textAlign: 'center',
-      padding: '20px',
-      border: '2px solid #007bff',
-      borderRadius: '8px',
-      backgroundColor: '#f9f9f9',
-      minWidth: '400px'
-    }}>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>
+    <Container variant="solid" style={{ minWidth: '400px' }}>
+      <h2 style={{ marginBottom: spacing.xl, color: colors.dark }}>
         Video Preview
       </h2>
-      <video 
-        src={videoUrl}
-        controls
-        style={{
-          width: '100%',
-          maxWidth: '600px',
-          height: 'auto',
-          borderRadius: '4px'
-        }}
+      <VideoElement 
+        videoFile={videoFile}
         onLoadStart={() => console.log('🎥 VideoPlayer.jsx: Video load started')}
         onLoadedData={() => console.log('🎥 VideoPlayer.jsx: Video data loaded')}
         onError={(e) => console.error('🎥 VideoPlayer.jsx: Video error:', e)}
       />
-      <p style={{ marginTop: '15px', color: '#666', fontSize: '14px' }}>
+      <p style={{ marginTop: spacing.lg, color: colors.textSecondary, fontSize: fontSizes.sm }}>
         <strong>File:</strong> {videoFile.name}
       </p>
-      <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
-        <button
-          onClick={handleGoToTimeline}
-          style={{
-            padding: '8px 16px',
-            fontSize: '14px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+      <div style={{ marginTop: spacing.lg, display: 'flex', gap: spacing.md, justifyContent: 'center' }}>
+        <Button variant="primary" size="sm" onClick={handleGoToTimeline}>
           Go to Timeline
-        </button>
-        <button
-          onClick={handleBackToImport}
-          style={{
-            padding: '8px 16px',
-            fontSize: '14px',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+        </Button>
+        <Button variant="secondary" size="sm" onClick={handleBackToImport}>
           Back to Import
-        </button>
+        </Button>
       </div>
-    </div>
+    </Container>
   );
 };
 
