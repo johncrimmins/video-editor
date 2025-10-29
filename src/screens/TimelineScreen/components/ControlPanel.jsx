@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, StatusMessage } from '../../../shared/ui';
+import { Button } from '../../../shared/ui/shadcn';
 
 const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBackToPreview }) => {
   const [isTrimming, setIsTrimming] = useState(false);
@@ -34,41 +34,45 @@ const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBack
   };
   
   return (
-    <Card variant="card" className="mt-xl">
-      <h3 className="mb-md text-base text-text">
-        Controls
-      </h3>
-      
-      <div className="flex gap-md flex-wrap">
-        <Button
-          variant="primary"
-          onClick={handleApplyTrim}
-          disabled={isTrimming || !videoFile || !trimPoints}
-        >
-          {isTrimming ? 'Trimming...' : 'Apply Trim'}
-        </Button>
+    <div className="px-md py-sm bg-background">
+      <div className="flex items-center justify-between gap-md">
+        {/* Left: Action buttons */}
+        <div className="flex gap-sm">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleApplyTrim}
+            disabled={isTrimming || !videoFile || !trimPoints}
+          >
+            {isTrimming ? 'Trimming...' : 'Apply Trim'}
+          </Button>
+          
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteClip}
+            disabled={!videoFile}
+          >
+            Delete Clip
+          </Button>
+          
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onBackToPreview}
+          >
+            ← Back to Preview
+          </Button>
+        </div>
         
-        <Button
-          variant="danger"
-          onClick={handleDeleteClip}
-          disabled={!videoFile}
-        >
-          Delete Clip
-        </Button>
-        
-        <Button
-          variant="secondary"
-          onClick={onBackToPreview}
-        >
-          Back to Preview
-        </Button>
+        {/* Right: Status message */}
+        {trimStatus && (
+          <div className={`text-sm ${trimStatus.success ? 'text-success' : 'text-error'}`}>
+            {trimStatus.message}
+          </div>
+        )}
       </div>
-      
-      <StatusMessage 
-        success={trimStatus?.success}
-        message={trimStatus?.message}
-      />
-    </Card>
+    </div>
   );
 };
 

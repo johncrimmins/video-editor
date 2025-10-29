@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, VideoElement } from '../../../shared/ui';
+import { VideoElement } from '../../../shared/ui';
 
 const VideoPreview = ({ videoFile, trimPoints }) => {
   if (!videoFile) {
@@ -7,25 +7,31 @@ const VideoPreview = ({ videoFile, trimPoints }) => {
   }
   
   return (
-    <Card variant="card" className="mt-xl p-md">
-      <h3 className="mb-md text-base text-text">
-        Video Preview
-      </h3>
-      <VideoElement 
-        videoFile={videoFile}
-        trimPoints={trimPoints}
-        onError={(e) => {
-          // Silently handle video errors
-        }}
-      />
-      {trimPoints && (
-        <div className="mt-md text-xs text-text-secondary">
-          <div>In: {trimPoints.inTime?.toFixed(2)}s</div>
-          <div>Out: {trimPoints.outTime?.toFixed(2)}s</div>
-          <div>Duration: {(trimPoints.outTime - trimPoints.inTime)?.toFixed(2)}s</div>
+    <div className="w-full flex justify-center items-center">
+      {/* Video player with purple border like screenshot */}
+      <div className="relative w-full max-w-4xl">
+        <div className="border-4 border-primary rounded-lg overflow-hidden bg-black">
+          <VideoElement 
+            videoFile={videoFile}
+            trimPoints={trimPoints}
+            onError={(e) => {
+              // Silently handle video errors
+            }}
+          />
         </div>
-      )}
-    </Card>
+        
+        {/* Trim info overlay */}
+        {trimPoints && (
+          <div className="absolute bottom-2 right-2 bg-black/70 px-3 py-1 rounded text-xs text-text-secondary">
+            <span>In: {trimPoints.inTime?.toFixed(2)}s</span>
+            <span className="mx-2">|</span>
+            <span>Out: {trimPoints.outTime?.toFixed(2)}s</span>
+            <span className="mx-2">|</span>
+            <span>Duration: {(trimPoints.outTime - trimPoints.inTime)?.toFixed(2)}s</span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

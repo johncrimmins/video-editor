@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Group, Rect } from 'react-konva';
 import { calculateClipWidth, clamp } from '../../../shared/domains/timeline';
 
-const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
+const ClipBlock = ({ videoFile, timelineWidth, yOffset = 0, onTrimStart, onTrimEnd }) => {
   // Debug logging
   console.log('🎯 ClipBlock: Component rendering');
   console.log('🎯 ClipBlock: videoFile:', videoFile);
@@ -16,8 +16,8 @@ const ClipBlock = ({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
   const clipWidth = calculateClipWidth(videoFile.duration, videoFile.duration, timelineWidth);
   console.log('🎯 ClipBlock: clipWidth calculated:', clipWidth);
   
-  const clipHeight = 40;
-  const clipY = 30; // Position above timeline line
+  const clipHeight = 60;
+  const clipY = yOffset + 10; // Position below timeline ruler
   
   // State for trim handle positions
   const [leftHandleX, setLeftHandleX] = useState(0);

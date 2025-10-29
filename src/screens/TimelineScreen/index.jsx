@@ -75,34 +75,47 @@ const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   
   return (
     <EditorScreen>
-      <div className="flex flex-col justify-start items-center w-full">
-        <h2 className="mb-xl text-text text-2xl">
-          Timeline Editor
-        </h2>
-        
+      <div className="flex flex-col w-full h-full overflow-hidden">
         {currentVideoFile ? (
-          <div className="w-full max-w-4xl">
-            <TimelineCanvas videoFile={currentVideoFile} trimPoints={trimPoints} updateTrimPoint={updateTrimPoint} />
-            <VideoPreview videoFile={currentVideoFile} trimPoints={trimPoints} />
-            <ControlPanel 
-              videoFile={currentVideoFile} 
-              trimPoints={trimPoints}
-              onApplyTrim={handleApplyTrim}
-              onDeleteClip={handleDeleteClip}
-              onBackToPreview={onBackToPreview}
-            />
-          </div>
+          <>
+            {/* Video Preview Panel - Top */}
+            <div className="flex-shrink-0 p-md bg-background">
+              <VideoPreview videoFile={currentVideoFile} trimPoints={trimPoints} />
+            </div>
+            
+            {/* Timeline Editor - Bottom */}
+            <div className="flex-1 flex flex-col bg-background-secondary overflow-hidden">
+              <TimelineCanvas 
+                videoFile={currentVideoFile} 
+                trimPoints={trimPoints} 
+                updateTrimPoint={updateTrimPoint} 
+              />
+              
+              {/* Control Panel */}
+              <div className="flex-shrink-0 border-t border-border">
+                <ControlPanel 
+                  videoFile={currentVideoFile} 
+                  trimPoints={trimPoints}
+                  onApplyTrim={handleApplyTrim}
+                  onDeleteClip={handleDeleteClip}
+                  onBackToPreview={onBackToPreview}
+                />
+              </div>
+            </div>
+          </>
         ) : (
-          <Card variant="dashed" className="min-w-[300px]">
-            <CardContent>
-              <h3 className="mb-xl text-text text-xl">
-                No Video Selected
-              </h3>
-              <p className="text-text-secondary">
-                Please go back to the preview screen to select a video file.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col justify-center items-center h-full">
+            <Card variant="dashed" className="min-w-[300px]">
+              <CardContent>
+                <h3 className="mb-xl text-text text-xl">
+                  No Video Selected
+                </h3>
+                <p className="text-text-secondary">
+                  Please go back to the preview screen to select a video file.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </EditorScreen>
