@@ -1,3 +1,9 @@
+/* Tailwind CSS directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Existing styles - keeping for backward compatibility */
 * {
   margin: 0;
   padding: 0;

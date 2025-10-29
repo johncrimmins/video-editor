@@ -20,7 +20,7 @@ const MainContent = () => {
           <span style={styles.icon}>🎬</span>
         </div>
         
-        <h1 style={styles.heading}>What do you want to do?</h1>
+        <h1 style={styles.heading} className="text-white">What do you want to do?</h1>
         
         <div style={styles.buttonContainer}>
           <button
