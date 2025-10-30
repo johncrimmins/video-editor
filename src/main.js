@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, protocol, desktopCapturer, systemPreferences } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, protocol, desktopCapturer } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -204,62 +204,6 @@ const setupIpcHandlers = () => {
     }
   });
 
-  // Handle get recording sources (screens/windows)
-  ipcMain.handle('get-recording-sources', async (event, options = {}) => {
-    try {
-      const { types = ['screen', 'window'], thumbnailSize = { width: 150, height: 150 } } = options;
-      
-      const sources = await desktopCapturer.getSources({
-        types,
-        thumbnailSize,
-        fetchWindowIcons: true
-      });
-      
-      return {
-        success: true,
-        sources: sources.map(source => ({
-          id: source.id,
-          name: source.name,
-          thumbnailURL: source.thumbnail.toDataURL(),
-          display_id: source.display_id,
-          appIcon: source.appIcon ? source.appIcon.toDataURL() : null
-        }))
-      };
-    } catch (error) {
-      console.error('🎥 Main Process IPC: Error in get-recording-sources:', error);
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-  });
-
-  // Handle check media permissions
-  ipcMain.handle('check-media-permissions', async (event, mediaType) => {
-    try {
-      if (process.platform === 'darwin') {
-        const status = systemPreferences.getMediaAccessStatus(mediaType);
-        return {
-          success: true,
-          status,
-          granted: status === 'granted'
-        };
-      } else {
-        // On Windows/Linux, assume granted for now
-        return {
-          success: true,
-          status: 'granted',
-          granted: true
-        };
-      }
-    } catch (error) {
-      console.error('🎥 Main Process IPC: Error in check-media-permissions:', error);
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-  });
 
   // Handle get native recording sources (FFmpeg-based)
   ipcMain.handle('get-native-recording-sources', async (event) => {

@@ -1,29 +1,34 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '../../../shared/ui/shadcn';
 import { Button, ErrorMessage } from '../../../shared/ui';
+import { RecordingStatus, RecordingDuration } from '../../../shared/ui/recording';
+import { useRecordingContext } from '../../../contexts/RecordingContext';
 
 /**
  * RecordingControls - Component for recording start/stop controls and status
+ * Now uses RecordingContext and reusable recording components
+ * Memoized to prevent unnecessary re-renders
  */
-const RecordingControls = ({
-  isRecording,
-  isLoading,
-  error,
-  recordingDuration,
-  formattedDuration,
-  formattedSize,
-  onStartRecording,
-  onStopRecording,
-  onCancelRecording,
-  onClearError,
-  selectedSource
-}) => {
+const RecordingControls = memo(() => {
+  const {
+    isRecording,
+    isLoading,
+    error,
+    formattedDuration,
+    formattedSize,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+    clearError,
+    selectedSource
+  } = useRecordingContext();
+
   const handleStartRecording = () => {
     if (!selectedSource) {
       alert('Please select a recording source first');
       return;
     }
-    onStartRecording('screen');
+    startRecording('screen');
   };
 
   return (
@@ -31,12 +36,7 @@ const RecordingControls = ({
       <CardContent className="p-lg">
         <div className="flex items-center justify-between mb-md">
           <h3 className="text-lg font-semibold text-text">Recording Controls</h3>
-          {isRecording && (
-            <div className="flex items-center space-x-sm">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-text-secondary">Recording</span>
-            </div>
-          )}
+          <RecordingStatus isRecording={isRecording} />
         </div>
 
         {error && (
@@ -45,7 +45,7 @@ const RecordingControls = ({
             <Button
               variant="secondary"
               size="sm"
-              onClick={onClearError}
+              onClick={clearError}
               className="mt-sm"
             >
               Dismiss
@@ -64,9 +64,7 @@ const RecordingControls = ({
                     Duration: {formattedDuration} | Size: {formattedSize}
                   </p>
                 </div>
-                <div className="text-2xl font-mono text-red-500">
-                  {formattedDuration}
-                </div>
+                <RecordingDuration duration={formattedDuration} />
               </div>
             </div>
 
@@ -75,7 +73,7 @@ const RecordingControls = ({
               <Button
                 variant="destructive"
                 size="lg"
-                onClick={onStopRecording}
+                onClick={stopRecording}
                 disabled={isLoading}
                 className="flex-1"
               >
@@ -84,7 +82,7 @@ const RecordingControls = ({
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={onCancelRecording}
+                onClick={cancelRecording}
                 disabled={isLoading}
               >
                 ❌ Cancel
@@ -119,6 +117,8 @@ const RecordingControls = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+RecordingControls.displayName = 'RecordingControls';
 
 export default RecordingControls;

@@ -1,15 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
-  getRecordingSources, 
-  getScreenStream, 
-  getWebcamStream, 
-  getMicrophoneStream,
-  createMediaRecorder,
-  combineStreams,
-  stopStream,
   generateRecordingFilename,
-  downloadBlob,
-  blobToVideoFile,
   formatRecordingDuration,
   formatFileSize,
   getNativeRecordingSources,
@@ -19,8 +10,8 @@ import {
 import { getFileInfo } from '../domains/file';
 
 /**
- * Shared hook for recording functionality
- * Handles screen recording, webcam recording, and audio capture
+ * Shared hook for native recording functionality
+ * Handles native screen recording using FFmpeg through Electron IPC
  * Can be used by any screen that needs recording capabilities
  */
 const useRecording = (onRecordingComplete = null) => {
@@ -35,10 +26,8 @@ const useRecording = (onRecordingComplete = null) => {
   const [sources, setSources] = useState([]);
   const [selectedSource, setSelectedSource] = useState(null);
   
-  // Media streams and recorder
+  // Media streams
   const [currentStream, setCurrentStream] = useState(null);
-  const [recorder, setRecorder] = useState(null);
-  const [recordedChunks, setRecordedChunks] = useState([]);
   const [completedRecording, setCompletedRecording] = useState(null);
   
   // Native recording state
@@ -46,9 +35,6 @@ const useRecording = (onRecordingComplete = null) => {
   
   // Refs for cleanup
   const durationIntervalRef = useRef(null);
-  const recorderRef = useRef(null);
-  const streamRef = useRef(null);
-  const chunksRef = useRef([]);
 
   // Load available native recording sources
   const loadSources = useCallback(async () => {

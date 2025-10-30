@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BasicScreen } from '../../shared/layouts';
-import { useRecording } from '../../shared/hooks';
+import { RecordingProvider } from '../../contexts/RecordingContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import SourceSelector from './components/SourceSelector';
 import RecordingControls from './components/RecordingControls';
@@ -8,8 +8,9 @@ import RecordingPreview from './components/RecordingPreview';
 import { ErrorMessage } from '../../shared/ui';
 
 /**
- * RecordingsScreen - Screen recording functionality
- * Provides screen recording, webcam recording, and audio capture
+ * RecordingsScreen - Native screen recording functionality
+ * Provides native screen recording using FFmpeg through Electron IPC
+ * Now uses RecordingProvider for centralized state management
  */
 const RecordingsScreen = () => {
   const { navigate } = useNavigation();
@@ -31,28 +32,19 @@ const RecordingsScreen = () => {
     navigate('editor', { videoFile });
   };
 
-  const {
-    isRecording,
-    isLoading,
-    error,
-    recordingDuration,
-    formattedDuration,
-    formattedSize,
-    sources,
-    selectedSource,
-    currentStream,
-    loadSources,
-    startRecording,
-    stopRecording,
-    cancelRecording,
-    setSelectedSource,
-    clearError
-  } = useRecording(handleRecordingComplete);
+  return (
+    <RecordingProvider onRecordingComplete={handleRecordingComplete}>
+      <RecordingsScreenContent />
+    </RecordingProvider>
+  );
+};
 
-  // Load sources on component mount
-  useEffect(() => {
-    loadSources();
-  }, [loadSources]);
+/**
+ * RecordingsScreenContent - The actual screen content
+ * Separated to allow RecordingProvider to wrap the content
+ */
+const RecordingsScreenContent = () => {
+  const { navigate } = useNavigation();
 
   return (
     <BasicScreen className="p-lg">
@@ -67,48 +59,17 @@ const RecordingsScreen = () => {
           </p>
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="mb-lg">
-            <ErrorMessage message={error} />
-          </div>
-        )}
-
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
           {/* Left Column - Controls */}
           <div className="space-y-lg">
-            <SourceSelector
-              sources={sources}
-              selectedSource={selectedSource}
-              onSourceSelect={setSelectedSource}
-              isLoading={isLoading}
-              onLoadSources={loadSources}
-            />
-            
-            <RecordingControls
-              isRecording={isRecording}
-              isLoading={isLoading}
-              error={error}
-              recordingDuration={recordingDuration}
-              formattedDuration={formattedDuration}
-              formattedSize={formattedSize}
-              onStartRecording={startRecording}
-              onStopRecording={stopRecording}
-              onCancelRecording={cancelRecording}
-              onClearError={clearError}
-              selectedSource={selectedSource}
-            />
+            <SourceSelector />
+            <RecordingControls />
           </div>
 
           {/* Right Column - Preview */}
           <div>
-            <RecordingPreview
-              currentStream={currentStream}
-              isRecording={isRecording}
-              recordingDuration={recordingDuration}
-              formattedDuration={formattedDuration}
-            />
+            <RecordingPreview />
           </div>
         </div>
 

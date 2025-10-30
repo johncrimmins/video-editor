@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '../../../shared/ui/shadcn';
+import { RecordingStatus, RecordingIndicator } from '../../../shared/ui/recording';
+import { useRecordingContext } from '../../../contexts/RecordingContext';
 import LiveVideoPreview from './LiveVideoPreview';
 
 /**
  * RecordingPreview - Component for showing live recording preview
+ * Now uses RecordingContext and reusable recording components
+ * Memoized to prevent unnecessary re-renders
  */
-const RecordingPreview = ({ 
-  currentStream, 
-  isRecording, 
-  recordingDuration,
-  formattedDuration 
-}) => {
+const RecordingPreview = memo(() => {
+  const { 
+    currentStream, 
+    isRecording, 
+    formattedDuration 
+  } = useRecordingContext();
+
   if (!currentStream) {
     return (
       <Card variant="card">
@@ -31,12 +36,10 @@ const RecordingPreview = ({
       <CardContent className="p-lg">
         <div className="flex items-center justify-between mb-md">
           <h3 className="text-lg font-semibold text-text">Live Preview</h3>
-          {isRecording && (
-            <div className="flex items-center space-x-sm">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-red-500 font-mono">{formattedDuration}</span>
-            </div>
-          )}
+          <RecordingStatus 
+            isRecording={isRecording} 
+            duration={formattedDuration}
+          />
         </div>
         
         <div className="relative bg-black rounded-lg overflow-hidden">
@@ -51,11 +54,7 @@ const RecordingPreview = ({
             }}
           />
           
-          {isRecording && (
-            <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-              ● REC
-            </div>
-          )}
+          <RecordingIndicator />
         </div>
         
         <div className="mt-md text-sm text-text-secondary">
@@ -64,6 +63,8 @@ const RecordingPreview = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+RecordingPreview.displayName = 'RecordingPreview';
 
 export default RecordingPreview;

@@ -54,6 +54,21 @@ export const darkTheme = {
   shadowMd: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
   shadowLg: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
   shadowXl: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+  
+  // Recording-specific colors
+  recording: {
+    active: '#ef4444', // Red for recording state
+    activeBg: '#7f1d1d',
+    indicator: '#ef4444',
+    duration: '#ef4444',
+    preview: '#000000'
+  },
+  
+  // Thumbnail sizes
+  thumbnails: {
+    size: '80px', // w-20 h-20 equivalent
+    borderRadius: '8px'
+  }
 };
 
 export const darkSpacing = {
