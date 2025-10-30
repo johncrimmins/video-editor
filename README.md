@@ -2,7 +2,7 @@
 
 > A modern desktop video editor built with Electron, React 19, and FFmpeg. Create, edit, and export professional videos with an intuitive timeline interface.
 
-![FrameSmith Screenshot](https://drive.google.com/file/d/16BYD9hPmGCe7idiXhyMTI1OONkLCZzX2/view?usp=sharing)
+![FrameSmith Screenshot](docs/assets/framesmith-screenshot.png)
 
 ## ✨ Features
 
