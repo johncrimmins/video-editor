@@ -1,21 +1,27 @@
 import React from 'react';
+import { EditorScreen } from '../../shared/layouts';
 import EmptyEditorScreen from './components/EmptyEditorScreen';
 import TimelineEditorScreen from './components/TimelineEditorScreen';
+import ImportInterface from './components/ImportInterface';
 
 /**
- * TimelineScreen - Simple router component that delegates to appropriate sub-components
- * No hooks - just conditional rendering based on videoFile prop
+ * TimelineScreen - Simplified component that goes directly from import to editor
+ * No internal state management - uses parent videoFile prop
  */
-const TimelineScreen = ({ videoFile, onBackToPreview, onDeleteClip, onVideoImported }) => {
-  // Simple conditional rendering - no hooks, no early returns
+const TimelineScreen = ({ videoFile, onDeleteClip, onVideoImported }) => {
+  // If no video file, show import interface
   if (!videoFile) {
-    return <EmptyEditorScreen onVideoImported={onVideoImported} />;
+    return (
+      <EditorScreen>
+        <ImportInterface onVideoSelected={onVideoImported} />
+      </EditorScreen>
+    );
   }
   
+  // If video file exists, show timeline editor
   return (
     <TimelineEditorScreen 
       videoFile={videoFile}
-      onBackToPreview={onBackToPreview}
       onDeleteClip={onDeleteClip}
     />
   );

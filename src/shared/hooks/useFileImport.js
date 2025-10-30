@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { openFileDialog, getFileInfo, validateVideoFile } from '../domains/file';
+import { extractDurationFromFile } from '../domains/video';
 
 /**
  * Shared hook for file import functionality
  * Handles file selection, validation, and video duration extraction
  * Can be used by any screen that needs to import video files
  */
-const useFileImport = () => {
+const useFileImport = (onVideoImported = null) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -56,6 +57,12 @@ const useFileImport = () => {
       };
       
       setSelectedFile(videoFile);
+      
+      // Automatically trigger callback if provided
+      if (onVideoImported) {
+        onVideoImported(videoFile);
+      }
+      
       return { success: true, file: videoFile };
       
     } catch (err) {
@@ -71,6 +78,10 @@ const useFileImport = () => {
     setSelectedFile(null);
     setError(null);
   };
+
+  // Drag and drop functionality removed for now
+
+  // Drag and drop event handlers removed for now
 
   return {
     selectedFile,

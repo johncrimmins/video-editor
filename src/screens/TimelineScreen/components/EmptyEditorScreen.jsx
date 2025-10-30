@@ -11,7 +11,13 @@ import { ErrorMessage } from '../../../shared/ui';
  */
 const EmptyEditorScreen = ({ onVideoImported }) => {
   // Only these hooks - consistent every render
-  const { selectedFile, isLoading, error, selectFile, clearFile } = useFileImport();
+  const { 
+    selectedFile, 
+    isLoading, 
+    error, 
+    selectFile, 
+    clearFile
+  } = useFileImport(onVideoImported);
   
   const handleImportClick = async () => {
     const result = await selectFile();
@@ -23,10 +29,20 @@ const EmptyEditorScreen = ({ onVideoImported }) => {
       alert('Error importing video: ' + result.error);
     }
   };
+
   
+  console.log('📁 EmptyEditorScreen: Rendering with state:', {
+    selectedFile,
+    isLoading,
+    error,
+    onVideoImported: typeof onVideoImported
+  });
+
   return (
     <EditorScreen>
-      <EmptyEditorState onImportClick={handleImportClick} />
+      <EmptyEditorState 
+        onImportClick={handleImportClick}
+      />
       {error && (
         <div className="fixed top-4 right-4 z-50">
           <ErrorMessage message={error} />

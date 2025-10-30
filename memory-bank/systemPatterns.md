@@ -65,12 +65,13 @@ The codebase uses a **unified component architecture** that combines:
 - **Unified UI**: Single source of truth for all UI components
 - **Global State**: Context-based state management
 
-### Component Structure
+### Component Structure (Enhanced - December 2024)
 ```
 src/
 ├── contexts/                      # Global React Contexts
 │   ├── NavigationContext.jsx     # Global screen routing
-│   └── SidebarContext.jsx        # Collapsible sidebar state
+│   ├── SidebarContext.jsx        # Collapsible sidebar state
+│   └── TimelineContext.jsx       # Timeline-specific state management (NEW)
 ├── shared/
 │   ├── domains/                  # Domain-driven shared code
 │   │   ├── file/                 # File operations domain
@@ -90,19 +91,35 @@ src/
 │       └── constants.js          # App-wide constants
 ├── screens/                      # Screen-specific UI modules
 │   ├── HomeScreen/               # Landing screen
-│   ├── VideoImportScreen/        # Video import functionality
-│   ├── VideoPreviewScreen/       # Video preview functionality
-│   └── TimelineScreen/           # Timeline editing functionality
+│   ├── ProjectsScreen/           # Projects management
+│   ├── RecordingsScreen/         # Quick recordings
+│   └── TimelineScreen/           # Unified video editing (import + editor)
+│       ├── components/           # Timeline-specific components
+│       │   ├── TimelineEditorScreen.jsx    # Main editor (refactored)
+│       │   ├── TimelineEditorContent.jsx   # Content component (NEW)
+│       │   ├── TimelineErrorBoundary.jsx   # Error handling (NEW)
+│       │   ├── TimelineCanvas.jsx          # Canvas (optimized)
+│       │   ├── ClipBlock.jsx              # Clip block (memoized)
+│       │   ├── VideoPreview.jsx           # Video preview (memoized)
+│       │   └── ControlPanel.jsx           # Control panel
+│       └── hooks/                # Timeline-specific hooks
+│           ├── useTimeline.js             # Timeline state
+│           ├── useTrim.js                 # Trim operations
+│           └── useTimelineEditor.js       # Unified hook (NEW)
 └── AppWithNavigation.jsx         # Main app with context providers
 ```
 
-### Architecture Principles
+### Architecture Principles (Enhanced - December 2024)
 1. **Unified Component System** - Single source of truth for UI components
 2. **Domain-Driven Shared Services** - Common logic organized by domain
 3. **Screen Independence** - Screens remain independent UI modules
 4. **Global State Management** - Context-based state for app-wide data
 5. **Modern React Patterns** - Component composition over conditional logic
 6. **Performance Optimization** - Optimized rendering and memory management
+7. **Context-Driven State Management** - Eliminate prop drilling with targeted contexts
+8. **Component Composition** - Split complex components into focused, composable pieces
+9. **Memoization Strategy** - Strategic use of React.memo, useCallback, and useMemo
+10. **Error Boundary Pattern** - Dedicated error handling components for better UX
 
 ## Component Patterns
 
@@ -126,30 +143,31 @@ src/
 
 ## Data Flow Patterns
 
-### Video Import Flow
+### Video Import Flow (Simplified)
 ```
-User clicks "Import" → File Dialog (IPC) → File Validation → 
-Video Metadata Extraction (FFmpeg) → State Storage (sessionStorage) → 
-Navigation to Preview Screen
+User clicks "✂️ Editor" → TimelineScreen (no video) → ImportInterface
+User clicks "Select Video File" → File Dialog (IPC) → File Validation → 
+Video Metadata Extraction (FFmpeg) → Automatic Editor Transition
 ```
 
-### Video Preview Flow
+### Unified Timeline Flow
 ```
-Video File Data → Custom app:// Protocol → HTML5 Video Element → 
-Playback Controls → Navigation to Timeline Editor
+TimelineScreen (with video) → TimelineEditorScreen → 
+VideoPreview + TimelineCanvas + ControlPanel
 ```
 
 ### Timeline Editing Flow - Detailed Architecture
 
-#### Component Hierarchy
+#### Component Hierarchy (Simplified)
 ```
 AppWithNavigation
   └─ NavigationContext & SidebarContext Providers
-      └─ TimelineScreen (Router Component)
-          └─ TimelineEditorScreen (Main Editor)
-              ├─ VideoPreview (Top Panel - 50vh)
+      └─ TimelineScreen (Unified Component)
+          ├─ ImportInterface (when no video)
+          └─ TimelineEditorScreen (when video exists)
+              ├─ VideoPreview (Top Panel)
               │   └─ VideoElement (HTML5 Video)
-              └─ TimelineCanvas (Bottom Panel - Remaining Space)
+              └─ TimelineCanvas (Bottom Panel)
                   ├─ Playback Controls Bar
                   ├─ Konva Stage/Layer
                   │   ├─ Timeline Ruler
@@ -240,17 +258,21 @@ ScreenLayout (grid: auto/1fr)
 
 ## Performance Patterns
 
-### React 19 Optimization
+### React 19 Optimization (Enhanced - December 2024)
 - **Component Separation**: Avoid conditional hook calls
 - **Dependency Arrays**: Proper useEffect dependencies
-- **Memoization**: Use React.memo for expensive components
-- **Event Handlers**: useEffectEvent for stable callbacks
+- **Memoization**: Use React.memo for expensive components with custom comparison functions
+- **Event Handlers**: useCallback for all event handlers to prevent unnecessary re-renders
+- **Expensive Calculations**: useMemo for time marker generation, playback head position, and other computed values
+- **State Updates**: Use functional updates (prev => newValue) to avoid dependency on current state
 
-### Konva.js Performance
+### Konva.js Performance (Enhanced - December 2024)
 - **React-Konva**: Declarative components with automatic batching
-- **Event Handling**: Efficient drag and drop with constraints
+- **Event Handling**: Memoized drag handlers with useCallback for optimal performance
 - **Memory Management**: Proper cleanup on unmount
 - **Canvas Optimization**: Use appropriate canvas settings
+- **Component Memoization**: React.memo with custom prop comparison for ClipBlock and VideoPreview
+- **Drag Performance**: Optimized drag handlers prevent 20+ unnecessary re-renders during interactions
 
 ### Electron Performance
 - **IPC Efficiency**: Minimize IPC calls, batch operations
@@ -305,3 +327,181 @@ ScreenLayout (grid: auto/1fr)
 - **Error Boundaries**: Use React error boundaries for UI errors
 - **User Feedback**: Show meaningful error messages
 - **Logging**: Use console.error for debugging, not console.log
+
+## Enhanced Design Patterns (December 2024)
+
+### Performance Optimization Patterns
+
+#### 1. Strategic Memoization Pattern
+```javascript
+// Component-level memoization with custom comparison
+const ClipBlock = memo(({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
+  // Component logic
+}, (prevProps, nextProps) => {
+  // Custom comparison for optimal performance
+  return (
+    prevProps.videoFile?.duration === nextProps.videoFile?.duration &&
+    prevProps.timelineWidth === nextProps.timelineWidth &&
+    prevProps.onTrimStart === nextProps.onTrimEnd
+  );
+});
+```
+
+#### 2. Event Handler Optimization Pattern
+```javascript
+// Memoized event handlers with useCallback
+const handlePlayPause = useCallback(() => {
+  setIsPlaying(prev => !prev);
+}, []);
+
+const handleSkipForward = useCallback(() => {
+  setCurrentTime(prev => Math.min(videoFile?.duration || 0, prev + 5));
+}, [videoFile?.duration]);
+```
+
+#### 3. Expensive Calculation Memoization Pattern
+```javascript
+// Memoize expensive calculations with useMemo
+const timeMarkers = useMemo(() => {
+  if (!videoFile?.duration) return [];
+  // Expensive calculation logic
+  return markers;
+}, [videoFile?.duration, dimensions.width, formatTime]);
+```
+
+### Architecture Patterns
+
+#### 1. Context-Driven State Management Pattern
+```javascript
+// Create targeted contexts to eliminate prop drilling
+export function TimelineProvider({ children, videoFile }) {
+  const value = useMemo(() => ({
+    videoFile: currentVideoFile,
+    trimPoints,
+    updateTrimPoint,
+    handleApplyTrim,
+    handleDeleteClip
+  }), [currentVideoFile, trimPoints, updateTrimPoint, handleApplyTrim, handleDeleteClip]);
+  
+  return (
+    <TimelineContext.Provider value={value}>
+      {children}
+    </TimelineContext.Provider>
+  );
+}
+```
+
+#### 2. Component Composition Pattern
+```javascript
+// Split complex components into focused, composable pieces
+const TimelineEditorScreen = ({ videoFile, onDeleteClip }) => {
+  if (!videoFile?.duration || videoFile.duration <= 0) {
+    return <TimelineErrorBoundary videoFile={videoFile} onDeleteClip={onDeleteClip} />;
+  }
+  
+  return (
+    <TimelineProvider videoFile={videoFile}>
+      <TimelineEditorContent onDeleteClip={onDeleteClip} />
+    </TimelineProvider>
+  );
+};
+```
+
+#### 3. Error Boundary Pattern
+```javascript
+// Dedicated error handling components
+const TimelineErrorBoundary = ({ videoFile, onDeleteClip }) => {
+  return (
+    <EditorScreen>
+      <div className="flex flex-col justify-center items-center h-full p-xl text-center">
+        <h2 className="mb-xl text-error text-2xl">⚠️ Invalid Video Duration</h2>
+        <ErrorMessage message={`Could not extract video duration...`} />
+        <Button variant="primary" size="lg" onClick={onDeleteClip}>
+          ← Back to Import
+        </Button>
+      </div>
+    </EditorScreen>
+  );
+};
+```
+
+#### 4. Unified Hook Pattern
+```javascript
+// Consolidate related functionality into unified hooks
+const useTimelineEditor = (videoFile) => {
+  const { trimPoints, updateTrimPoint } = useTimeline(videoFile);
+  const { applyTrim } = useTrim(videoFile, trimPoints);
+  
+  const timelineState = useMemo(() => ({
+    videoFile: currentVideoFile,
+    trimPoints,
+    isTrimming,
+    hasVideo: !!currentVideoFile
+  }), [currentVideoFile, trimPoints, isTrimming]);
+  
+  const timelineActions = useMemo(() => ({
+    updateTrimPoint,
+    handleApplyTrim,
+    handleDeleteClip
+  }), [updateTrimPoint, handleApplyTrim, handleDeleteClip]);
+  
+  return { ...timelineState, ...timelineActions };
+};
+```
+
+### Best Practices for Future Development
+
+#### 1. Performance First Approach
+- **Always use useCallback** for event handlers passed as props
+- **Always use useMemo** for expensive calculations
+- **Always use React.memo** for components that receive props
+- **Use functional state updates** to avoid dependency on current state
+
+#### 2. Context Strategy
+- **Create targeted contexts** for specific feature areas
+- **Memoize context values** to prevent unnecessary re-renders
+- **Use custom comparison functions** for React.memo when needed
+- **Avoid over-contextualization** - only use context when prop drilling becomes excessive
+
+#### 3. Component Design
+- **Split complex components** into focused, single-responsibility pieces
+- **Use composition over inheritance** for component relationships
+- **Create dedicated error boundary components** for better error handling
+- **Implement proper TypeScript interfaces** for all props and state
+
+#### 4. Hook Organization
+- **Consolidate related functionality** into unified custom hooks
+- **Memoize hook return values** to prevent unnecessary re-renders
+- **Use consistent naming conventions** (use prefix, descriptive names)
+- **Separate state from actions** in hook return objects
+
+#### 5. Testing Considerations
+- **Test memoized components** with different prop combinations
+- **Test context providers** with various state scenarios
+- **Test error boundaries** with different error conditions
+- **Test performance optimizations** with React DevTools Profiler
+
+### Implementation Guidelines
+
+#### When to Use Each Pattern
+- **React.memo**: When component receives props that don't change often
+- **useCallback**: When passing functions as props to memoized components
+- **useMemo**: When performing expensive calculations or creating objects/arrays
+- **Context**: When prop drilling exceeds 2-3 component levels
+- **Composition**: When single component becomes too complex (>200 lines)
+- **Error Boundaries**: When component can fail in ways that break the UI
+
+#### Performance Monitoring
+- Use React DevTools Profiler to identify unnecessary re-renders
+- Monitor bundle size impact of memoization
+- Test with large datasets to validate performance improvements
+- Measure actual performance gains with timing measurements
+
+#### Code Review Checklist
+- [ ] All event handlers use useCallback
+- [ ] Expensive calculations use useMemo
+- [ ] Components receiving props use React.memo
+- [ ] Context values are memoized
+- [ ] Custom comparison functions are optimized
+- [ ] Error boundaries handle edge cases
+- [ ] Components are focused and single-responsibility

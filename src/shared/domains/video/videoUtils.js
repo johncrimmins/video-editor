@@ -57,6 +57,37 @@ export const extractVideoMetadata = (videoElement) => {
 };
 
 /**
+ * Extract video duration from File object using HTML5 video element
+ * @param {File} file - The dropped file
+ * @returns {Promise<number>} - Promise resolving to duration in seconds
+ */
+export const extractDurationFromFile = (file) => {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('video/')) {
+      reject(new Error('Invalid video file'));
+      return;
+    }
+
+    const video = document.createElement('video');
+    video.src = URL.createObjectURL(file);
+    
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      URL.revokeObjectURL(video.src); // Cleanup
+      resolve(duration);
+    };
+    
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src);
+      reject(new Error('Could not load video metadata'));
+    };
+    
+    // Load the video to trigger metadata loading
+    video.load();
+  });
+};
+
+/**
  * Check if video is ready to play
  * @param {HTMLVideoElement} videoElement - The video element
  * @returns {boolean} - True if video is ready

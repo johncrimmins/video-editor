@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stage, Layer, Line, Text as KonvaText, Rect } from 'react-konva';
 import { getDefaultTimelineDimensions, positionToTime, timeToPosition } from '../../../shared/domains/timeline';
 import ClipBlock from './ClipBlock';
@@ -28,19 +28,16 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
     };
   }, []);
   
-  // Format time helper
-  const formatTime = (seconds) => {
+  // Format time helper - memoized to prevent recreation
+  const formatTime = useCallback((seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     const milliseconds = Math.floor((seconds % 1) * 10);
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}.${milliseconds}`;
-  };
+  }, []);
   
-  // Calculate playback head position
-  const playbackHeadX = timeToPosition(currentTime, videoFile?.duration || 0, dimensions.width);
-  
-  // Generate time markers for the ruler
-  const renderTimeMarkers = () => {
+  // Memoize expensive time marker calculations
+  const timeMarkers = useMemo(() => {
     if (!videoFile?.duration) return [];
     
     const markers = [];
@@ -74,28 +71,33 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
       );
     }
     return markers;
-  };
+  }, [videoFile?.duration, dimensions.width, formatTime]);
   
-  // Playback controls
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+  // Memoize playback head position calculation
+  const playbackHeadX = useMemo(() => {
+    return timeToPosition(currentTime, videoFile?.duration || 0, dimensions.width);
+  }, [currentTime, videoFile?.duration, dimensions.width]);
   
-  const handleSkipBackward = () => {
-    setCurrentTime(Math.max(0, currentTime - 5));
-  };
+  // Playback controls - memoized with useCallback
+  const handlePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev);
+  }, []);
   
-  const handleSkipForward = () => {
-    setCurrentTime(Math.min(videoFile?.duration || 0, currentTime + 5));
-  };
+  const handleSkipBackward = useCallback(() => {
+    setCurrentTime(prev => Math.max(0, prev - 5));
+  }, []);
   
-  const handleZoomIn = () => {
-    setZoomLevel(Math.min(200, zoomLevel + 25));
-  };
+  const handleSkipForward = useCallback(() => {
+    setCurrentTime(prev => Math.min(videoFile?.duration || 0, prev + 5));
+  }, [videoFile?.duration]);
   
-  const handleZoomOut = () => {
-    setZoomLevel(Math.max(50, zoomLevel - 25));
-  };
+  const handleZoomIn = useCallback(() => {
+    setZoomLevel(prev => Math.min(200, prev + 25));
+  }, []);
+  
+  const handleZoomOut = useCallback(() => {
+    setZoomLevel(prev => Math.max(50, prev - 25));
+  }, []);
   
   return (
     <>
@@ -183,7 +185,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
               />
               
               {/* Time markers */}
-              {renderTimeMarkers()}
+              {timeMarkers}
               
               {/* Timeline base line */}
               <Line

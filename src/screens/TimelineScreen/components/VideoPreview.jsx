@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { VideoElement } from '../../../shared/ui';
 
-const VideoPreview = ({ videoFile, trimPoints }) => {
+const VideoPreview = memo(({ videoFile, trimPoints }) => {
   if (!videoFile) {
     return null;
   }
@@ -33,7 +33,15 @@ const VideoPreview = ({ videoFile, trimPoints }) => {
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.videoFile?.path === nextProps.videoFile?.path &&
+    prevProps.trimPoints?.inTime === nextProps.trimPoints?.inTime &&
+    prevProps.trimPoints?.outTime === nextProps.trimPoints?.outTime
+  );
+});
+
+VideoPreview.displayName = 'VideoPreview';
 
 export default VideoPreview;
 

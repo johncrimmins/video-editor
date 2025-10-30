@@ -1,0 +1,252 @@
+---
+description: React 19 performance optimization patterns and best practices for Clipforge MVP
+globs: **/*.{js,jsx,ts,tsx}, **/components/**/*, **/hooks/**/*, **/contexts/**/*
+---
+
+# React 19 Performance Optimization Patterns
+
+## Overview
+This rule documents the performance optimization patterns implemented in Clipforge MVP to ensure future agents follow the same high-performance standards.
+
+## Core Performance Principles
+
+### 1. Strategic Memoization
+- **Always use React.memo** for components that receive props
+- **Always use useCallback** for event handlers passed as props
+- **Always use useMemo** for expensive calculations
+- **Use custom comparison functions** for React.memo when needed
+
+### 2. Event Handler Optimization
+```javascript
+// ✅ GOOD: Memoized event handlers
+const handlePlayPause = useCallback(() => {
+  setIsPlaying(prev => !prev);
+}, []);
+
+const handleSkipForward = useCallback(() => {
+  setCurrentTime(prev => Math.min(videoFile?.duration || 0, prev + 5));
+}, [videoFile?.duration]);
+
+// ❌ BAD: Non-memoized event handlers
+const handlePlayPause = () => {
+  setIsPlaying(!isPlaying);
+};
+```
+
+### 3. Expensive Calculation Memoization
+```javascript
+// ✅ GOOD: Memoized expensive calculations
+const timeMarkers = useMemo(() => {
+  if (!videoFile?.duration) return [];
+  // Expensive calculation logic
+  return markers;
+}, [videoFile?.duration, dimensions.width, formatTime]);
+
+// ❌ BAD: Recalculated on every render
+const timeMarkers = renderTimeMarkers();
+```
+
+### 4. Component Memoization with Custom Comparison
+```javascript
+// ✅ GOOD: Custom comparison for optimal performance
+const ClipBlock = memo(({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
+  // Component logic
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.videoFile?.duration === nextProps.videoFile?.duration &&
+    prevProps.timelineWidth === nextProps.timelineWidth &&
+    prevProps.onTrimStart === nextProps.onTrimEnd
+  );
+});
+
+// ❌ BAD: Default shallow comparison
+const ClipBlock = memo(({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
+  // Component logic
+});
+```
+
+## Context-Driven State Management
+
+### 1. Targeted Context Creation
+- **Create contexts for specific feature areas** (e.g., TimelineContext)
+- **Memoize context values** to prevent unnecessary re-renders
+- **Avoid over-contextualization** - only use when prop drilling exceeds 2-3 levels
+
+```javascript
+// ✅ GOOD: Memoized context value
+export function TimelineProvider({ children, videoFile }) {
+  const value = useMemo(() => ({
+    videoFile: currentVideoFile,
+    trimPoints,
+    updateTrimPoint,
+    handleApplyTrim,
+    handleDeleteClip
+  }), [currentVideoFile, trimPoints, updateTrimPoint, handleApplyTrim, handleDeleteClip]);
+  
+  return (
+    <TimelineContext.Provider value={value}>
+      {children}
+    </TimelineContext.Provider>
+  );
+}
+```
+
+### 2. Context Consumption Pattern
+```javascript
+// ✅ GOOD: Direct context consumption
+const TimelineEditorContent = ({ onDeleteClip }) => {
+  const { videoFile, trimPoints, updateTrimPoint, handleApplyTrim } = useTimelineContext();
+  // Component logic
+};
+
+// ❌ BAD: Prop drilling
+const TimelineEditorContent = ({ videoFile, trimPoints, updateTrimPoint, handleApplyTrim, onDeleteClip }) => {
+  // Component logic
+};
+```
+
+## Component Composition Patterns
+
+### 1. Split Complex Components
+- **Break down components >200 lines** into focused pieces
+- **Use composition over inheritance** for component relationships
+- **Create dedicated error boundary components** for better error handling
+
+```javascript
+// ✅ GOOD: Composition pattern
+const TimelineEditorScreen = ({ videoFile, onDeleteClip }) => {
+  if (!videoFile?.duration || videoFile.duration <= 0) {
+    return <TimelineErrorBoundary videoFile={videoFile} onDeleteClip={onDeleteClip} />;
+  }
+  
+  return (
+    <TimelineProvider videoFile={videoFile}>
+      <TimelineEditorContent onDeleteClip={onDeleteClip} />
+    </TimelineProvider>
+  );
+};
+```
+
+### 2. Error Boundary Pattern
+```javascript
+// ✅ GOOD: Dedicated error handling component
+const TimelineErrorBoundary = ({ videoFile, onDeleteClip }) => {
+  return (
+    <EditorScreen>
+      <div className="flex flex-col justify-center items-center h-full p-xl text-center">
+        <h2 className="mb-xl text-error text-2xl">⚠️ Invalid Video Duration</h2>
+        <ErrorMessage message={`Could not extract video duration...`} />
+        <Button variant="primary" size="lg" onClick={onDeleteClip}>
+          ← Back to Import
+        </Button>
+      </div>
+    </EditorScreen>
+  );
+};
+```
+
+## Hook Organization Patterns
+
+### 1. Unified Hook Pattern
+- **Consolidate related functionality** into unified custom hooks
+- **Memoize hook return values** to prevent unnecessary re-renders
+- **Separate state from actions** in hook return objects
+
+```javascript
+// ✅ GOOD: Unified hook with memoized returns
+const useTimelineEditor = (videoFile) => {
+  const { trimPoints, updateTrimPoint } = useTimeline(videoFile);
+  const { applyTrim } = useTrim(videoFile, trimPoints);
+  
+  const timelineState = useMemo(() => ({
+    videoFile: currentVideoFile,
+    trimPoints,
+    isTrimming,
+    hasVideo: !!currentVideoFile
+  }), [currentVideoFile, trimPoints, isTrimming]);
+  
+  const timelineActions = useMemo(() => ({
+    updateTrimPoint,
+    handleApplyTrim,
+    handleDeleteClip
+  }), [updateTrimPoint, handleApplyTrim, handleDeleteClip]);
+  
+  return { ...timelineState, ...timelineActions };
+};
+```
+
+## Performance Monitoring
+
+### 1. React DevTools Profiler
+- Use React DevTools Profiler to identify unnecessary re-renders
+- Monitor bundle size impact of memoization
+- Test with large datasets to validate performance improvements
+
+### 2. Code Review Checklist
+- [ ] All event handlers use useCallback
+- [ ] Expensive calculations use useMemo
+- [ ] Components receiving props use React.memo
+- [ ] Context values are memoized
+- [ ] Custom comparison functions are optimized
+- [ ] Error boundaries handle edge cases
+- [ ] Components are focused and single-responsibility
+
+## Implementation Guidelines
+
+### When to Use Each Pattern
+- **React.memo**: When component receives props that don't change often
+- **useCallback**: When passing functions as props to memoized components
+- **useMemo**: When performing expensive calculations or creating objects/arrays
+- **Context**: When prop drilling exceeds 2-3 component levels
+- **Composition**: When single component becomes too complex (>200 lines)
+- **Error Boundaries**: When component can fail in ways that break the UI
+
+### Performance First Approach
+- **Always use useCallback** for event handlers passed as props
+- **Always use useMemo** for expensive calculations
+- **Always use React.memo** for components that receive props
+- **Use functional state updates** to avoid dependency on current state
+
+## Examples from Clipforge MVP
+
+### TimelineCanvas Optimizations
+```javascript
+// Memoized event handlers
+const handlePlayPause = useCallback(() => {
+  setIsPlaying(prev => !prev);
+}, []);
+
+// Memoized expensive calculations
+const timeMarkers = useMemo(() => {
+  if (!videoFile?.duration) return [];
+  // Expensive calculation logic
+  return markers;
+}, [videoFile?.duration, dimensions.width, formatTime]);
+```
+
+### ClipBlock Optimizations
+```javascript
+// Memoized drag handlers
+const handleLeftDragMove = useCallback((e) => {
+  const newX = e.target.x();
+  const constrainedX = clamp(newX, 0, rightHandleX - 20);
+  setLeftHandleX(constrainedX);
+  onTrimStart?.(constrainedX);
+}, [rightHandleX, onTrimStart]);
+
+// Custom comparison function
+const ClipBlock = memo(({ videoFile, timelineWidth, onTrimStart, onTrimEnd }) => {
+  // Component logic
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.videoFile?.duration === nextProps.videoFile?.duration &&
+    prevProps.timelineWidth === nextProps.timelineWidth &&
+    prevProps.onTrimStart === nextProps.onTrimEnd
+  );
+});
+```
+
+## Resources
+- [React 19 Documentation](https://react.dev)
+- [React DevTools Profiler](https://react.dev/learn/react-developer-tools)
+- [Performance Best Practices](https://react.dev/learn/render-and-commit)

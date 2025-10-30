@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../../../shared/ui';
 
-const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBackToPreview }) => {
+const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip }) => {
   const [isTrimming, setIsTrimming] = useState(false);
   const [trimStatus, setTrimStatus] = useState(null);
   
@@ -55,13 +55,6 @@ const ControlPanel = ({ videoFile, trimPoints, onApplyTrim, onDeleteClip, onBack
             Delete Clip
           </Button>
           
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onBackToPreview}
-          >
-            ← Back to Preview
-          </Button>
         </div>
         
         {/* Right: Status message */}
