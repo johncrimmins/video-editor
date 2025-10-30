@@ -7,8 +7,19 @@ export function NavigationProvider({ children }) {
   const [selectedVideoFile, setSelectedVideoFile] = useState(null);
   
   const navigate = (screen, data = {}) => {
+    console.log('🧭 NavigationContext: Navigating to', screen, 'with data:', data);
+    
     // Handle navigation with optional data
     if (data.videoFile) {
+      console.log('🧭 NavigationContext: Setting video file:', {
+        name: data.videoFile.name,
+        size: data.videoFile.size,
+        type: data.videoFile.type,
+        duration: data.videoFile.duration,
+        hasPath: !!data.videoFile.path,
+        hasUrl: !!data.videoFile.url,
+        isRecorded: data.videoFile.isRecorded
+      });
       setSelectedVideoFile(data.videoFile);
     }
     setCurrentScreen(screen);

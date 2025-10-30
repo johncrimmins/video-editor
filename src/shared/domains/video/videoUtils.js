@@ -73,6 +73,15 @@ export const extractDurationFromFile = (file) => {
     
     video.onloadedmetadata = () => {
       const duration = video.duration;
+      console.log('🎬 extractDurationFromFile: Video metadata loaded:', {
+        duration: duration,
+        durationType: typeof duration,
+        isFinite: isFinite(duration),
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        readyState: video.readyState,
+        durationAttribute: video.getAttribute('duration')
+      });
       URL.revokeObjectURL(video.src); // Cleanup
       resolve(duration);
     };

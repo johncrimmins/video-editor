@@ -9,8 +9,21 @@ import ImportInterface from './components/ImportInterface';
  * No internal state management - uses parent videoFile prop
  */
 const TimelineScreen = ({ videoFile, onDeleteClip, onVideoImported }) => {
+  console.log('🎬 TimelineScreen: Received videoFile:', videoFile);
+  console.log('🎬 TimelineScreen: Video file details:', {
+    exists: !!videoFile,
+    name: videoFile?.name,
+    size: videoFile?.size,
+    type: videoFile?.type,
+    duration: videoFile?.duration,
+    hasPath: !!videoFile?.path,
+    hasUrl: !!videoFile?.url,
+    isRecorded: videoFile?.isRecorded
+  });
+  
   // If no video file, show import interface
   if (!videoFile) {
+    console.log('🎬 TimelineScreen: No video file, showing import interface');
     return (
       <EditorScreen>
         <ImportInterface onVideoSelected={onVideoImported} />
@@ -19,6 +32,7 @@ const TimelineScreen = ({ videoFile, onDeleteClip, onVideoImported }) => {
   }
   
   // If video file exists, show timeline editor
+  console.log('🎬 TimelineScreen: Video file exists, showing timeline editor');
   return (
     <TimelineEditorScreen 
       videoFile={videoFile}

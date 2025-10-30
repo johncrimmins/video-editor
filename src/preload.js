@@ -21,6 +21,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('trim-video', params);
   },
   
+  // Recording operations
+  getRecordingSources: (options) => {
+    return ipcRenderer.invoke('get-recording-sources', options);
+  },
+  checkMediaPermissions: (mediaType) => {
+    return ipcRenderer.invoke('check-media-permissions', mediaType);
+  },
+  
   // Utility methods
   platform: process.platform,
   versions: process.versions
