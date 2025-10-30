@@ -98,7 +98,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
   };
   
   return (
-    <div className="flex-1 flex flex-col bg-background-secondary overflow-hidden">
+    <>
       {/* Playback Controls Bar */}
       <div className="flex items-center justify-between px-md py-sm border-b border-border bg-background">
         {/* Left: Playback controls */}
@@ -168,8 +168,8 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
         </div>
       </div>
       
-      {/* Timeline Canvas */}
-      <div className="flex-1 flex justify-center items-start p-md overflow-auto">
+      {/* Timeline Canvas - Natural height, centered */}
+      <div className="flex justify-center items-center p-md">
         <div className="relative">
           <Stage width={dimensions.width} height={dimensions.height}>
             <Layer>
@@ -233,7 +233,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

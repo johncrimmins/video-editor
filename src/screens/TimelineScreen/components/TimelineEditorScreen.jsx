@@ -69,16 +69,16 @@ const TimelineEditorScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
   
   return (
     <EditorScreen>
-      <div className="flex flex-col w-full h-full overflow-hidden">
+      <div className="grid grid-rows-[1fr_auto] w-full h-full overflow-hidden">
         {currentVideoFile ? (
           <>
-            {/* Video Preview Panel - Top */}
-            <div className="flex-shrink-0 p-md bg-background">
+            {/* Video Preview Panel - Top - Takes available space */}
+            <div className="min-h-0 p-md bg-background overflow-hidden">
               <VideoPreview videoFile={currentVideoFile} trimPoints={trimPoints} />
             </div>
             
-            {/* Timeline Editor - Bottom */}
-            <div className="flex-1 flex flex-col bg-background-secondary overflow-hidden">
+            {/* Timeline Editor - Bottom - Natural height */}
+            <div className="grid grid-rows-[auto_auto_auto] bg-background-secondary">
               <TimelineCanvas 
                 videoFile={currentVideoFile} 
                 trimPoints={trimPoints} 
@@ -86,7 +86,7 @@ const TimelineEditorScreen = ({ videoFile, onBackToPreview, onDeleteClip }) => {
               />
               
               {/* Control Panel */}
-              <div className="flex-shrink-0 border-t border-border">
+              <div className="border-t border-border">
                 <ControlPanel 
                   videoFile={currentVideoFile} 
                   trimPoints={trimPoints}

@@ -12,7 +12,7 @@ import React from 'react';
 const MainContent = ({ children, className = '', style = {} }) => {
   return (
     <div 
-      className={`mt-15 flex-1 overflow-hidden ${className}`}
+      className={`flex-1 min-h-0 overflow-hidden ${className}`}
       style={style}
     >
       {children}

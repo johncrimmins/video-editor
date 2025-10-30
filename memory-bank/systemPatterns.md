@@ -139,16 +139,104 @@ Video File Data → Custom app:// Protocol → HTML5 Video Element →
 Playback Controls → Navigation to Timeline Editor
 ```
 
-### Timeline Editing Flow
+### Timeline Editing Flow - Detailed Architecture
+
+#### Component Hierarchy
 ```
-Video File → React-Konva Canvas → Drag Handles → Trim Points → 
-FFmpeg Processing → Updated Video File
+AppWithNavigation
+  └─ NavigationContext & SidebarContext Providers
+      └─ TimelineScreen (Router Component)
+          └─ TimelineEditorScreen (Main Editor)
+              ├─ VideoPreview (Top Panel - 50vh)
+              │   └─ VideoElement (HTML5 Video)
+              └─ TimelineCanvas (Bottom Panel - Remaining Space)
+                  ├─ Playback Controls Bar
+                  ├─ Konva Stage/Layer
+                  │   ├─ Timeline Ruler
+                  │   ├─ ClipBlock (with trim handles)
+                  │   └─ Playback Head
+                  └─ ControlPanel (Fixed Bottom)
 ```
 
+#### Data Flow: Trim Operation
+```
+1. User drags trim handle (ClipBlock)
+   ↓
+2. onDragMove event fires → constrainedX calculated
+   ↓
+3. ClipBlock updates local state (leftHandleX/rightHandleX)
+   ↓
+4. onTrimStart/onTrimEnd callback fires with X position
+   ↓
+5. TimelineCanvas converts X → time (positionToTime)
+   ↓
+6. updateTrimPoint called in TimelineEditorScreen
+   ↓
+7. useTimeline hook updates trimPoints state
+   ↓
+8. trimPoints propagate to VideoPreview & ControlPanel
+   ↓
+9. User clicks "Apply Trim"
+   ↓
+10. useTrim.applyTrim() called
+    ↓
+11. FFmpeg IPC call via trimVideo service
+    ↓
+12. New video file created → state updated
+```
+
+#### Hook Dependencies
+- **useTimeline**: Manages trimPoints state (inTime, outTime)
+  - Input: videoFile
+  - Output: { trimPoints, updateTrimPoint, isDragging, startDragging, stopDragging }
+  - Throws error if videoFile.duration is invalid
+
+- **useTrim**: Handles FFmpeg trim operation
+  - Input: videoFile, trimPoints
+  - Output: { applyTrim }
+  - Calls: trimVideo IPC → FFmpeg processing
+
+#### State Flow
+```
+videoFile (prop from AppWithNavigation)
+  ↓
+TimelineEditorScreen
+  ├─ useTimeline(videoFile) → trimPoints
+  ├─ useTrim(videoFile, trimPoints) → applyTrim
+  └─ useState(videoFile) → currentVideoFile
+      ↓
+  Props down to children:
+    ├─ VideoPreview: videoFile, trimPoints
+    ├─ TimelineCanvas: videoFile, trimPoints, updateTrimPoint
+    │   └─ ClipBlock: videoFile, onTrimStart, onTrimEnd
+    └─ ControlPanel: videoFile, trimPoints, onApplyTrim
+```
+
+#### Layout Architecture (CSS Grid - October 29, 2025)
+```
+ScreenLayout (grid: auto/1fr)
+  ├─ ScreenHeader (auto height - natural, no fixed positioning)
+  └─ MainContent (1fr - fills remaining space, min-h-0)
+      └─ TimelineEditorScreen (grid: 1fr/auto)
+          ├─ VideoPreview Panel (1fr - takes available space)
+          └─ Timeline Area (auto - natural height)
+              ├─ PlaybackControls (auto)
+              ├─ TimelineCanvas (auto - natural 120px + padding)
+              └─ ControlPanel (auto)
+```
+
+**Key Design Principles:**
+- **CSS Grid over Flexbox**: Grid provides clearer layout contracts
+- **No Hardcoded Heights**: Uses `auto`, `1fr`, or natural content sizing
+- **Natural Flow**: Header in document flow, not fixed positioned
+- **Minimal Whitespace**: Components only take space they need
+- **Responsive**: Adapts to any screen size automatically
+
 ### State Management
-- **NavigationContext**: currentScreen, selectedVideoFile
+- **NavigationContext**: currentScreen, selectedVideoFile, navigate()
 - **SidebarContext**: isCollapsed, sidebarWidth
 - **sessionStorage**: Video persistence across navigation
+- **Component State**: trimPoints, currentTime, isPlaying, zoomLevel
 
 ## Performance Patterns
 

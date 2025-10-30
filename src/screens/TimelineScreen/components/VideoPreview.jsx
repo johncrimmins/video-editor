@@ -7,10 +7,10 @@ const VideoPreview = ({ videoFile, trimPoints }) => {
   }
   
   return (
-    <div className="w-full flex justify-center items-center">
+    <div className="w-full h-full flex justify-center items-center">
       {/* Video player with purple border like screenshot */}
-      <div className="relative w-full max-w-4xl">
-        <div className="border-4 border-primary rounded-lg overflow-hidden bg-black">
+      <div className="relative w-full h-full max-w-4xl flex items-center justify-center">
+        <div className="border-4 border-primary rounded-lg overflow-hidden bg-black max-h-full">
           <VideoElement 
             videoFile={videoFile}
             trimPoints={trimPoints}
