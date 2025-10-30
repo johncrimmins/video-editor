@@ -24,7 +24,7 @@ export const getNativeRecordingSources = async () => {
 /**
  * Starts native screen recording using FFmpeg
  * @param {string} sourceId - ID of the screen/window to record
- * @param {string} outputPath - Path where the recording will be saved
+ * @param {string} filename - Filename for the recording (main process will handle full path)
  * @param {Object} options - Recording options
  * @param {number} options.width - Recording width (default: 1920)
  * @param {number} options.height - Recording height (default: 1080)
@@ -32,7 +32,7 @@ export const getNativeRecordingSources = async () => {
  * @param {string} options.bitrate - Recording bitrate (default: '2500k')
  * @returns {Promise<Object>} - Promise resolving to recording start result
  */
-export const startNativeRecording = async (sourceId, outputPath, options = {}) => {
+export const startNativeRecording = async (sourceId, filename, options = {}) => {
   try {
     if (!window.electronAPI || !window.electronAPI.startNativeRecording) {
       throw new Error('Electron API not available. Make sure preload script is loaded.');
@@ -40,7 +40,7 @@ export const startNativeRecording = async (sourceId, outputPath, options = {}) =
     
     const result = await window.electronAPI.startNativeRecording({
       sourceId,
-      outputPath,
+      filename,
       options
     });
     return result;

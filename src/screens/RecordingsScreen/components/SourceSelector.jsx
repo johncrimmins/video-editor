@@ -12,6 +12,10 @@ const SourceSelector = ({
   isLoading, 
   onLoadSources 
 }) => {
+  const handleLoadSources = () => {
+    onLoadSources();
+  };
+  
   return (
     <Card variant="card" className="mb-lg">
       <CardContent className="p-lg">
@@ -20,7 +24,7 @@ const SourceSelector = ({
           <Button
             variant="secondary"
             size="sm"
-            onClick={onLoadSources}
+            onClick={handleLoadSources}
             disabled={isLoading}
           >
             {isLoading ? 'Loading...' : 'Refresh'}
@@ -33,7 +37,7 @@ const SourceSelector = ({
             <Button
               variant="primary"
               size="sm"
-              onClick={onLoadSources}
+              onClick={handleLoadSources}
               disabled={isLoading}
             >
               Load Sources
@@ -41,42 +45,55 @@ const SourceSelector = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-            {sources.map((source) => (
-              <div
-                key={source.id}
-                className={`p-md border-2 rounded-lg cursor-pointer transition-all ${
-                  selectedSource?.id === source.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-primary/50'
-                }`}
-                onClick={() => onSourceSelect(source)}
-              >
-                <div className="flex items-center space-x-md">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
-                    {source.thumbnailURL ? (
-                      <img
-                        src={source.thumbnailURL}
-                        alt={source.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">
-                        📺
-                      </div>
-                    )}
+            {sources.map((source) => {
+              const isScreen = source.name.includes('Capture screen');
+              const isCamera = source.name.includes('Camera');
+              
+              return (
+                <div
+                  key={source.id}
+                  className={`p-md border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedSource?.id === source.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                  onClick={() => onSourceSelect(source)}
+                >
+                  <div className="flex items-start space-x-md">
+                    {/* Thumbnail */}
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-surface-dark flex-shrink-0 border border-border">
+                      {source.thumbnail ? (
+                        <img
+                          src={source.thumbnail}
+                          alt={source.displayName || source.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-3xl">
+                          {isScreen ? '🖥️' : isCamera ? '📷' : '📺'}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-text truncate mb-1">
+                        {source.displayName || source.name}
+                      </h4>
+                      <p className="text-sm text-text-secondary">
+                        {isScreen ? 'Screen Capture' : isCamera ? 'Camera' : 'Video Source'}
+                      </p>
+                      {selectedSource?.id === source.id && (
+                        <div className="mt-2 flex items-center text-primary text-sm">
+                          <span className="mr-1">✓</span>
+                          <span>Selected</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-text truncate">{source.name}</h4>
-                    <p className="text-sm text-text-secondary">
-                      {source.name.includes('Screen') ? 'Screen' : 'Window'}
-                    </p>
-                  </div>
-                  {selectedSource?.id === source.id && (
-                    <div className="text-primary">✓</div>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>

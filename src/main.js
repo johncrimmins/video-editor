@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog, protocol, desktopCapturer, systemPreferences } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import os from 'node:os';
 import started from 'electron-squirrel-startup';
 import ffmpeg from 'ffmpeg-static';
 import ffprobe from 'ffprobe-static';
@@ -24,6 +25,9 @@ const createWindow = () => {
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      enableRemoteModule: false,
     },
   });
 
@@ -259,33 +263,88 @@ const setupIpcHandlers = () => {
 
   // Handle get native recording sources (FFmpeg-based)
   ipcMain.handle('get-native-recording-sources', async (event) => {
+    console.log('🎥 Main Process IPC: get-native-recording-sources called');
     try {
       // Use FFmpeg to list available capture devices
       const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
       const command = `"${systemFfmpeg}" -f avfoundation -list_devices true -i ""`;
+      
+      console.log('🎥 Main Process IPC: Executing FFmpeg command:', command);
       
       let stdout, stderr;
       try {
         const result = await execAsync(command);
         stdout = result.stdout;
         stderr = result.stderr;
+        console.log('🎥 Main Process IPC: FFmpeg command succeeded');
+        console.log('🎥 Main Process IPC: STDOUT:', stdout);
+        console.log('🎥 Main Process IPC: STDERR:', stderr);
       } catch (error) {
+        console.log('🎥 Main Process IPC: FFmpeg command failed (expected for device listing)');
+        console.log('🎥 Main Process IPC: Error code:', error.code);
+        console.log('🎥 Main Process IPC: Error stdout:', error.stdout);
+        console.log('🎥 Main Process IPC: Error stderr:', error.stderr);
+        
         // FFmpeg returns non-zero exit code even when listing devices successfully
         // Check if we got the device list in stderr
         if (error.stderr && error.stderr.includes('AVFoundation video devices:')) {
+          console.log('🎥 Main Process IPC: Found device list in stderr, using error output');
           stdout = error.stdout || '';
           stderr = error.stderr;
         } else {
+          console.log('🎥 Main Process IPC: No device list found, throwing error');
           throw error;
         }
       }
       
       // Parse FFmpeg output to extract available sources
+      console.log('🎥 Main Process IPC: Parsing FFmpeg sources from stderr');
       const sources = parseFFmpegSources(stderr);
+      console.log('🎥 Main Process IPC: Parsed sources:', sources);
+      
+      // Get thumbnails for screen sources using desktopCapturer
+      console.log('🎥 Main Process IPC: Getting thumbnails for screen sources');
+      const desktopSources = await desktopCapturer.getSources({
+        types: ['screen'],
+        thumbnailSize: { width: 150, height: 150 }
+      });
+      
+      // Match FFmpeg sources with desktopCapturer thumbnails
+      const sourcesWithThumbnails = sources.map(source => {
+        // For screen capture sources, try to match with desktopCapturer
+        if (source.name.includes('Capture screen')) {
+          // Extract screen number from name (e.g., "Capture screen 0" -> 0)
+          const screenMatch = source.name.match(/Capture screen (\d+)/);
+          if (screenMatch) {
+            const screenIndex = parseInt(screenMatch[1]);
+            // desktopCapturer sources are named like "Screen 1", "Screen 2", etc. (1-indexed)
+            const desktopSource = desktopSources.find(ds => 
+              ds.name === `Screen ${screenIndex + 1}` || ds.name.includes(`screen ${screenIndex}`)
+            );
+            
+            if (desktopSource && desktopSource.thumbnail) {
+              return {
+                ...source,
+                thumbnail: desktopSource.thumbnail.toDataURL(),
+                displayName: desktopSource.display_id ? `Screen ${screenIndex + 1}` : source.name
+              };
+            }
+          }
+        }
+        
+        // For cameras, use a camera icon (no thumbnail available)
+        return {
+          ...source,
+          thumbnail: null,
+          displayName: source.name
+        };
+      });
+      
+      console.log('🎥 Main Process IPC: Sources with thumbnails:', sourcesWithThumbnails.length);
       
       return {
         success: true,
-        sources
+        sources: sourcesWithThumbnails
       };
     } catch (error) {
       console.error('🎥 Main Process IPC: Error in get-native-recording-sources:', error);
@@ -297,7 +356,7 @@ const setupIpcHandlers = () => {
   });
 
   // Handle start native recording (FFmpeg-based)
-  ipcMain.handle('start-native-recording', async (event, { sourceId, outputPath, options = {} }) => {
+  ipcMain.handle('start-native-recording', async (event, { sourceId, filename, options = {} }) => {
     try {
       const {
         width = 1920,
@@ -306,14 +365,21 @@ const setupIpcHandlers = () => {
         bitrate = '2500k'
       } = options;
 
+      // Generate full output path in main process (where os.homedir() is available)
+      const recordingsDir = path.join(os.homedir(), 'Desktop', 'Clipforge Recordings');
+      const outputPath = path.join(recordingsDir, filename);
+      
+      console.log('🎥 Main Process IPC: Recording to:', outputPath);
+
       // Ensure recordings directory exists
-      const recordingsDir = path.dirname(outputPath);
       if (!fs.existsSync(recordingsDir)) {
         fs.mkdirSync(recordingsDir, { recursive: true });
       }
 
       // Use FFmpeg for native screen recording
       const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
+      
+      console.log('🎥 Main Process IPC: Starting FFmpeg with source:', sourceId);
       
       // Start FFmpeg process for screen recording on macOS
       const ffmpegProcess = spawn(systemFfmpeg, [
@@ -333,6 +399,11 @@ const setupIpcHandlers = () => {
       ffmpegProcess.on('error', (error) => {
         console.error('🎥 FFmpeg process error:', error);
         recordingProcesses.delete(outputPath);
+      });
+      
+      // Log FFmpeg output for debugging
+      ffmpegProcess.stderr.on('data', (data) => {
+        console.log('🎥 FFmpeg:', data.toString());
       });
 
       // Store process reference for stopping
@@ -375,40 +446,56 @@ const setupIpcHandlers = () => {
 
 // Helper function to parse FFmpeg output for available sources
 const parseFFmpegSources = (output) => {
+  console.log('🎥 parseFFmpegSources: Starting to parse output');
+  console.log('🎥 parseFFmpegSources: Raw output:', output);
+  
   const sources = [];
   const lines = output.split('\n');
+  console.log('🎥 parseFFmpegSources: Split into', lines.length, 'lines');
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    console.log(`🎥 parseFFmpegSources: Line ${i}:`, line);
+    
     if (line.includes('AVFoundation video devices:')) {
+      console.log('🎥 parseFFmpegSources: Found AVFoundation video devices section');
       // Parse video devices
       i++;
       while (i < lines.length && !lines[i].includes('AVFoundation audio devices:')) {
         const deviceLine = lines[i].trim();
-        if (deviceLine && !deviceLine.includes('AVFoundation')) {
-          const match = deviceLine.match(/\[(\d+)\] (.+)/);
-          if (match) {
-            const deviceId = match[1];
-            const deviceName = match[2];
-            
-            // Filter for screen capture devices and cameras
-            if (deviceName.includes('Capture screen') || 
-                deviceName.includes('Camera') || 
-                deviceName.includes('FaceTime') ||
-                deviceName.includes('Virtual Camera')) {
-              sources.push({
-                id: deviceId,
-                name: deviceName,
-                type: 'video'
-              });
-            }
+        console.log(`🎥 parseFFmpegSources: Processing device line ${i}:`, deviceLine);
+        
+        // Match the device line pattern: [AVFoundation indev @ ...] [ID] Device Name
+        // We need to extract the [ID] and Device Name from the line
+        const match = deviceLine.match(/\[AVFoundation[^\]]*\]\s*\[(\d+)\]\s*(.+)/);
+        if (match) {
+          const deviceId = match[1];
+          const deviceName = match[2];
+          console.log(`🎥 parseFFmpegSources: Found device - ID: ${deviceId}, Name: ${deviceName}`);
+          
+          // Filter for screen capture devices and cameras
+          if (deviceName.includes('Capture screen') || 
+              deviceName.includes('Camera') || 
+              deviceName.includes('FaceTime') ||
+              deviceName.includes('Virtual Camera')) {
+            console.log(`🎥 parseFFmpegSources: Adding device to sources: ${deviceName}`);
+            sources.push({
+              id: deviceId,
+              name: deviceName,
+              type: 'video'
+            });
+          } else {
+            console.log(`🎥 parseFFmpegSources: Skipping device (not screen/camera): ${deviceName}`);
           }
+        } else {
+          console.log(`🎥 parseFFmpegSources: No match for device line: ${deviceLine}`);
         }
         i++;
       }
     }
   }
   
+  console.log('🎥 parseFFmpegSources: Final sources array:', sources);
   return sources;
 };
 

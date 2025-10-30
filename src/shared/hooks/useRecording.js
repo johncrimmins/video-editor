@@ -107,12 +107,11 @@ const useRecording = (onRecordingComplete = null) => {
         throw new Error('No recording source selected');
       }
       
-      // Generate output path for native recording
+      // Generate filename for native recording
       const filename = generateRecordingFilename('recording', 'mp4');
-      const outputPath = `/Users/${process.env.USER || 'user'}/Desktop/Clipforge Recordings/${filename}`;
       
-      // Start native FFmpeg recording
-      const result = await startNativeRecording(selectedSource.id, outputPath, {
+      // Start native FFmpeg recording (main process will handle path generation)
+      const result = await startNativeRecording(selectedSource.id, filename, {
         width: 1920,
         height: 1080,
         framerate: 30,
