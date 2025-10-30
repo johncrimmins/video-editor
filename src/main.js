@@ -1,3 +1,14 @@
+// Load environment variables from .env.local if it exists
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env.local from project root (parent of src directory)
+config({ path: join(__dirname, '../../.env.local') });
+
 import { app, BrowserWindow, ipcMain, dialog, protocol, desktopCapturer } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -7,6 +18,7 @@ import ffmpeg from 'ffmpeg-static';
 import ffprobe from 'ffprobe-static';
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
+import OpenAI from 'openai';
 
 const execAsync = promisify(exec);
 
@@ -248,6 +260,33 @@ const setupIpcHandlers = () => {
       };
     } catch (error) {
       throw error;
+    }
+  });
+
+  // Handle AI assist for script writing
+  ipcMain.handle('ai-assist-script', async (event, { prompt, instructions }) => {
+    try {
+      if (!prompt || typeof prompt !== 'string') {
+        throw new Error('Invalid prompt');
+      }
+
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error('Missing OPENAI_API_KEY');
+      }
+
+      const client = new OpenAI({ apiKey });
+
+      const response = await client.responses.create({
+        model: 'gpt-4o',
+        instructions: instructions || 'You are a helpful script writing assistant. Generate concise, production-ready code snippets with brief rationale for non-obvious choices.',
+        input: prompt
+      });
+
+      return { success: true, text: response.output_text || '' };
+    } catch (error) {
+      console.error('🤖 Main Process IPC: Error in ai-assist-script:', error);
+      return { success: false, error: error.message };
     }
   });
 

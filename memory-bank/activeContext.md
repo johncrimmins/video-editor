@@ -239,6 +239,19 @@ TimelineScreen (with video) → TimelineEditorScreen (full editing)
 
 ## Recent Achievements
 
+### Phase 12: Timeline Empty State Redesign + Dropped File Playback Fix ✅ COMPLETE (October 30, 2025)
+- Implemented simplified Timeline empty state matching inspiration screenshot:
+  - Keeps global header and left sidebar
+  - Adds "Name your creation" header in content area
+  - Centers existing `DragDropZone` for import (drag-and-drop + file picker)
+- Added new `TimelineImportInterface` that wraps `DragDropZone` and forwards first imported file
+- Updated `TimelineScreen` empty state to use `TimelineImportInterface`
+- Fixed dropped file playback issue in `VideoElement`:
+  - When a dropped file provides a `File` blob, create and use a `blob:` Object URL
+  - Fallback to `app://` custom protocol for real file paths (picker/recordings)
+  - Properly revokes object URLs to prevent leaks
+- Result: Drag-and-drop to Timeline now renders and plays in `VideoPreview` correctly
+
 ### Phase 8: Architecture Refactoring ✅ COMPLETE (October 29, 2025)
 - **Unified TimelineScreen**: Single component with 2-state logic (import/editor)
 - **Eliminated Legacy Screens**: Removed VideoImportScreen and VideoPreviewScreen directories

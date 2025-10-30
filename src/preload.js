@@ -45,5 +45,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Utility methods
   platform: process.platform,
-  versions: process.versions
+  versions: process.versions,
+  
+  // AI assistant
+  aiAssistScript: ({ prompt, instructions }) => {
+    return ipcRenderer.invoke('ai-assist-script', { prompt, instructions });
+  }
 });

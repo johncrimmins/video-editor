@@ -14,6 +14,7 @@
 - **Timeline Editor**: Konva.js canvas with draggable trim handles
 - **Real-time Trimming**: Live preview of trim points with FFmpeg processing
 - **State Persistence**: sessionStorage maintains video state across navigation
+ - **Timeline Empty State**: Simplified editor start UI with drag-and-drop import
 
 ### Modern UI System
 - **Dark Theme**: Unified theme system with purple accents (#6366f1)
@@ -226,4 +227,8 @@
 - **Phase 5**: 🔄 In Progress (Native Recording Implementation)
 - **Phase 6**: Pending (Export Functionality)
 - **Phase 7**: Pending (Polish and Testing)
+
+### New Completed Work (October 30, 2025)
+- Timeline empty state redesigned using `TimelineImportInterface` with `DragDropZone`
+- Dropped-file playback fixed by using `blob:` object URLs in `VideoElement` when a `File` blob is present; fallback to `app://` for real paths
 - **Target**: 24-hour sprint completion
