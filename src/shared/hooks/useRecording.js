@@ -11,9 +11,12 @@ import {
   downloadBlob,
   blobToVideoFile,
   formatRecordingDuration,
-  formatFileSize
+  formatFileSize,
+  getNativeRecordingSources,
+  startNativeRecording,
+  stopNativeRecording
 } from '../domains/recording';
-import { extractDurationFromFile } from '../domains/video';
+import { getFileInfo } from '../domains/file';
 
 /**
  * Shared hook for recording functionality
@@ -38,22 +41,22 @@ const useRecording = (onRecordingComplete = null) => {
   const [recordedChunks, setRecordedChunks] = useState([]);
   const [completedRecording, setCompletedRecording] = useState(null);
   
+  // Native recording state
+  const [recordingProcessId, setRecordingProcessId] = useState(null);
+  
   // Refs for cleanup
   const durationIntervalRef = useRef(null);
   const recorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
 
-  // Load available recording sources
+  // Load available native recording sources
   const loadSources = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const result = await getRecordingSources({
-        types: ['screen', 'window'],
-        thumbnailSize: { width: 150, height: 150 }
-      });
+      const result = await getNativeRecordingSources();
       
       if (result.success) {
         setSources(result.sources);
@@ -73,154 +76,118 @@ const useRecording = (onRecordingComplete = null) => {
     }
   }, []);
 
-  // Start recording
+  // Start duration tracking
+  const startDurationTracking = useCallback(() => {
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+    }
+    
+    durationIntervalRef.current = setInterval(() => {
+      setRecordingDuration(prev => prev + 1);
+    }, 1000);
+  }, []);
+
+  // Stop duration tracking
+  const stopDurationTracking = useCallback(() => {
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+  }, []);
+
+  // Start native recording
   const startRecording = useCallback(async (recordingType = 'screen') => {
     try {
       setIsLoading(true);
       setError(null);
-      setRecordedChunks([]);
-      chunksRef.current = []; // Clear chunks ref
       setRecordingDuration(0);
       setRecordingSize(0);
       
-      let stream = null;
-      
-      // Get the appropriate stream based on recording type
-      if (recordingType === 'screen') {
-        if (!selectedSource) {
-          throw new Error('No recording source selected');
-        }
-        stream = await getScreenStream(selectedSource.id);
-      } else if (recordingType === 'webcam') {
-        stream = await getWebcamStream();
-      } else if (recordingType === 'screen+webcam') {
-        const screenStream = await getScreenStream(selectedSource.id);
-        const webcamStream = await getWebcamStream();
-        stream = combineStreams([screenStream, webcamStream]);
+      if (!selectedSource) {
+        throw new Error('No recording source selected');
       }
       
-      if (!stream) {
-        throw new Error('Failed to get media stream');
-      }
+      // Generate output path for native recording
+      const filename = generateRecordingFilename('recording', 'mp4');
+      const outputPath = `/Users/${process.env.USER || 'user'}/Desktop/Clipforge Recordings/${filename}`;
       
-      // Create media recorder
-      const mediaRecorder = createMediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9'
+      // Start native FFmpeg recording
+      const result = await startNativeRecording(selectedSource.id, outputPath, {
+        width: 1920,
+        height: 1080,
+        framerate: 30,
+        bitrate: '2500k'
       });
       
-      // Set up recording event handlers
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
-          setRecordedChunks(prev => [...prev, event.data]);
-        }
-      };
-      
-      mediaRecorder.onstop = async () => {
-        // Get the current recorded chunks at the time of stopping
-        const currentChunks = chunksRef.current;
-        const blob = new Blob(currentChunks, { type: 'video/webm' });
-        const filename = generateRecordingFilename('recording', 'webm');
+      if (result.success) {
+        setRecordingProcessId(result.processId);
+        setIsRecording(true);
         
-        try {
-          // Extract duration from the blob using the existing video system
-          console.log('🎥 useRecording: Extracting duration from recorded blob...');
-          console.log('🎥 useRecording: Blob details:', {
-            size: blob.size,
-            type: blob.type,
-            blobURL: URL.createObjectURL(blob)
-          });
-          
-          const duration = await extractDurationFromFile(blob);
-          console.log('🎥 useRecording: Extracted duration:', duration);
-          console.log('🎥 useRecording: Duration type:', typeof duration);
-          console.log('🎥 useRecording: Is finite:', isFinite(duration));
-          
-          // Convert to video file format with extracted duration
-          const videoFile = blobToVideoFile(blob, filename);
-          videoFile.duration = duration; // Override with extracted duration
-          
-          // Set the completed recording for useEffect to handle
-          setCompletedRecording(videoFile);
-        } catch (error) {
-          console.error('🎥 useRecording: Failed to extract duration:', error);
-          
-          // Still create the video file but with duration 0
-          const videoFile = blobToVideoFile(blob, filename);
-          setCompletedRecording(videoFile);
-        }
-        
-        // Clean up
-        stopStream(stream);
-        setCurrentStream(null);
-        setRecordedChunks([]); // Clear chunks
-        chunksRef.current = []; // Clear ref
-      };
-      
-      // Start recording
-      mediaRecorder.start(1000); // Collect data every second
-      
-      // Store references for cleanup
-      setCurrentStream(stream);
-      setRecorder(mediaRecorder);
-      recorderRef.current = mediaRecorder;
-      streamRef.current = stream;
-      
-      // Start duration timer
-      durationIntervalRef.current = setInterval(() => {
-        setRecordingDuration(prev => prev + 1);
-      }, 1000);
-      
-      setIsRecording(true);
-      
-    } catch (err) {
-      console.error('🎥 useRecording: Start recording error:', err);
-      setError(err.message);
-      
-      // Clean up on error
-      if (streamRef.current) {
-        stopStream(streamRef.current);
-        streamRef.current = null;
+        // Start duration tracking
+        startDurationTracking();
+      } else {
+        throw new Error(result.error || 'Failed to start recording');
       }
+    } catch (error) {
+      console.error('🎥 useRecording: Start recording error:', error);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedSource, onRecordingComplete]);
+  }, [selectedSource, startDurationTracking]);
 
-  // Stop recording
-  const stopRecording = useCallback(() => {
+  // Stop native recording
+  const stopRecording = useCallback(async () => {
     try {
-      if (recorderRef.current && recorderRef.current.state === 'recording') {
-        recorderRef.current.stop();
+      if (!recordingProcessId) {
+        throw new Error('No active recording to stop');
       }
       
-      // Clear duration timer
-      if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
-        durationIntervalRef.current = null;
+      const result = await stopNativeRecording(recordingProcessId);
+      
+      if (result.success) {
+        // Get the output file path from the process ID
+        const outputPath = recordingProcessId; // processId is the outputPath
+        
+        // Use existing getFileInfo to extract metadata
+        const fileInfoResult = await getFileInfo(outputPath);
+        
+        if (fileInfoResult.success) {
+          const videoFile = {
+            path: outputPath,
+            name: fileInfoResult.fileInfo.name,
+            size: fileInfoResult.fileInfo.size,
+            type: fileInfoResult.fileInfo.type,
+            duration: fileInfoResult.fileInfo.duration, // From FFmpeg
+            isRecorded: true
+          };
+          
+          setCompletedRecording(videoFile);
+          
+          if (onRecordingComplete) {
+            onRecordingComplete(videoFile);
+          }
+        }
+        
+        setRecordingProcessId(null);
+        setIsRecording(false);
+        stopDurationTracking();
+      } else {
+        throw new Error(result.error || 'Failed to stop recording');
       }
-      
-      setIsRecording(false);
-      setRecordingDuration(0);
-      
-    } catch (err) {
-      console.error('🎥 useRecording: Stop recording error:', err);
-      setError(err.message);
+    } catch (error) {
+      console.error('🎥 useRecording: Stop recording error:', error);
+      setError(error.message);
     }
-  }, []);
+  }, [recordingProcessId, onRecordingComplete, stopDurationTracking]);
 
-  // Cancel recording
-  const cancelRecording = useCallback(() => {
+  // Cancel native recording
+  const cancelRecording = useCallback(async () => {
     try {
-      // Stop the recorder
-      if (recorderRef.current && recorderRef.current.state === 'recording') {
-        recorderRef.current.stop();
-      }
-      
-      // Stop the stream
-      if (streamRef.current) {
-        stopStream(streamRef.current);
-        streamRef.current = null;
+      if (recordingProcessId) {
+        // Stop the native recording process
+        await stopNativeRecording(recordingProcessId);
+        setRecordingProcessId(null);
       }
       
       // Clear duration timer
@@ -232,32 +199,12 @@ const useRecording = (onRecordingComplete = null) => {
       // Reset state
       setIsRecording(false);
       setRecordingDuration(0);
-      setRecordedChunks([]);
-      setCurrentStream(null);
-      setRecorder(null);
       
     } catch (err) {
       console.error('🎥 useRecording: Cancel recording error:', err);
       setError(err.message);
     }
-  }, []);
-
-  // Download current recording
-  const downloadRecording = useCallback(() => {
-    if (recordedChunks.length > 0) {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const filename = generateRecordingFilename('recording', 'webm');
-      downloadBlob(blob, filename);
-    }
-  }, [recordedChunks]);
-
-  // Update recording size when chunks change
-  useEffect(() => {
-    if (recordedChunks.length > 0) {
-      const totalSize = recordedChunks.reduce((acc, chunk) => acc + chunk.size, 0);
-      setRecordingSize(totalSize);
-    }
-  }, [recordedChunks]);
+  }, [recordingProcessId]);
 
   // Handle completed recording
   useEffect(() => {
@@ -275,17 +222,12 @@ const useRecording = (onRecordingComplete = null) => {
         clearInterval(durationIntervalRef.current);
       }
       
-      // Stop and clean up stream
-      if (streamRef.current) {
-        stopStream(streamRef.current);
-      }
-      
-      // Stop recorder
-      if (recorderRef.current && recorderRef.current.state === 'recording') {
-        recorderRef.current.stop();
+      // Stop native recording if active
+      if (recordingProcessId) {
+        stopNativeRecording(recordingProcessId).catch(console.error);
       }
     };
-  }, []);
+  }, [recordingProcessId]);
 
   // Format helpers
   const formattedDuration = formatRecordingDuration(recordingDuration);
@@ -300,7 +242,6 @@ const useRecording = (onRecordingComplete = null) => {
     recordingSize,
     sources,
     selectedSource,
-    currentStream,
     completedRecording,
     
     // Formatted values
@@ -312,7 +253,6 @@ const useRecording = (onRecordingComplete = null) => {
     startRecording,
     stopRecording,
     cancelRecording,
-    downloadRecording,
     setSelectedSource,
     clearError: () => setError(null)
   };

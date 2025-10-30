@@ -29,6 +29,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('check-media-permissions', mediaType);
   },
   
+  // Native recording operations (FFmpeg-based)
+  getNativeRecordingSources: () => {
+    return ipcRenderer.invoke('get-native-recording-sources');
+  },
+  startNativeRecording: (params) => {
+    return ipcRenderer.invoke('start-native-recording', params);
+  },
+  stopNativeRecording: (params) => {
+    return ipcRenderer.invoke('stop-native-recording', params);
+  },
+  
   // Utility methods
   platform: process.platform,
   versions: process.versions

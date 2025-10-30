@@ -5,3 +5,4 @@
 
 export * from './recordingService';
 export * from './recordingUtils';
+export * from './nativeRecordingService';

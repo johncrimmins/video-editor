@@ -4,10 +4,13 @@ import fs from 'node:fs';
 import started from 'electron-squirrel-startup';
 import ffmpeg from 'ffmpeg-static';
 import ffprobe from 'ffprobe-static';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
+
+// Track active recording processes
+const recordingProcesses = new Map();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -253,6 +256,160 @@ const setupIpcHandlers = () => {
       };
     }
   });
+
+  // Handle get native recording sources (FFmpeg-based)
+  ipcMain.handle('get-native-recording-sources', async (event) => {
+    try {
+      // Use FFmpeg to list available capture devices
+      const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
+      const command = `"${systemFfmpeg}" -f avfoundation -list_devices true -i ""`;
+      
+      let stdout, stderr;
+      try {
+        const result = await execAsync(command);
+        stdout = result.stdout;
+        stderr = result.stderr;
+      } catch (error) {
+        // FFmpeg returns non-zero exit code even when listing devices successfully
+        // Check if we got the device list in stderr
+        if (error.stderr && error.stderr.includes('AVFoundation video devices:')) {
+          stdout = error.stdout || '';
+          stderr = error.stderr;
+        } else {
+          throw error;
+        }
+      }
+      
+      // Parse FFmpeg output to extract available sources
+      const sources = parseFFmpegSources(stderr);
+      
+      return {
+        success: true,
+        sources
+      };
+    } catch (error) {
+      console.error('🎥 Main Process IPC: Error in get-native-recording-sources:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  });
+
+  // Handle start native recording (FFmpeg-based)
+  ipcMain.handle('start-native-recording', async (event, { sourceId, outputPath, options = {} }) => {
+    try {
+      const {
+        width = 1920,
+        height = 1080,
+        framerate = 30,
+        bitrate = '2500k'
+      } = options;
+
+      // Ensure recordings directory exists
+      const recordingsDir = path.dirname(outputPath);
+      if (!fs.existsSync(recordingsDir)) {
+        fs.mkdirSync(recordingsDir, { recursive: true });
+      }
+
+      // Use FFmpeg for native screen recording
+      const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
+      
+      // Start FFmpeg process for screen recording on macOS
+      const ffmpegProcess = spawn(systemFfmpeg, [
+        '-f', 'avfoundation',
+        '-capture_cursor', '1',
+        '-i', `${sourceId}:0`,
+        '-vf', `scale=${width}:${height}`,
+        '-r', framerate.toString(),
+        '-b:v', bitrate,
+        '-c:v', 'libx264',
+        '-preset', 'veryfast',
+        '-y',
+        outputPath
+      ]);
+
+      // Handle process errors
+      ffmpegProcess.on('error', (error) => {
+        console.error('🎥 FFmpeg process error:', error);
+        recordingProcesses.delete(outputPath);
+      });
+
+      // Store process reference for stopping
+      recordingProcesses.set(outputPath, ffmpegProcess);
+
+      return {
+        success: true,
+        outputPath,
+        processId: outputPath
+      };
+    } catch (error) {
+      console.error('🎥 Main Process IPC: Error in start-native-recording:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  });
+
+  // Handle stop native recording
+  ipcMain.handle('stop-native-recording', async (event, { processId }) => {
+    try {
+      const process = recordingProcesses.get(processId);
+      if (process) {
+        process.kill('SIGTERM');
+        recordingProcesses.delete(processId);
+        
+        // Wait a moment for file to be written
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        return { success: true };
+      }
+      return { success: false, error: 'Process not found' };
+    } catch (error) {
+      console.error('🎥 Main Process IPC: Error in stop-native-recording:', error);
+      return { success: false, error: error.message };
+    }
+  });
+};
+
+// Helper function to parse FFmpeg output for available sources
+const parseFFmpegSources = (output) => {
+  const sources = [];
+  const lines = output.split('\n');
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.includes('AVFoundation video devices:')) {
+      // Parse video devices
+      i++;
+      while (i < lines.length && !lines[i].includes('AVFoundation audio devices:')) {
+        const deviceLine = lines[i].trim();
+        if (deviceLine && !deviceLine.includes('AVFoundation')) {
+          const match = deviceLine.match(/\[(\d+)\] (.+)/);
+          if (match) {
+            const deviceId = match[1];
+            const deviceName = match[2];
+            
+            // Filter for screen capture devices and cameras
+            if (deviceName.includes('Capture screen') || 
+                deviceName.includes('Camera') || 
+                deviceName.includes('FaceTime') ||
+                deviceName.includes('Virtual Camera')) {
+              sources.push({
+                id: deviceId,
+                name: deviceName,
+                type: 'video'
+              });
+            }
+          }
+        }
+        i++;
+      }
+    }
+  }
+  
+  return sources;
 };
 
 // Helper function to get MIME type from extension
