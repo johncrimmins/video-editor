@@ -244,3 +244,90 @@ export const handleConvertVideo = async (event, { inputPath, outputPath, format 
     return handleIPCError(error, 'convert-video');
   }
 };
+
+/**
+ * Generates a thumbnail from a video file using FFmpeg
+ * @param {Object} event - IPC event
+ * @param {Object} params - Thumbnail parameters
+ * @param {string} params.inputPath - Input video file path
+ * @param {string} params.outputPath - Output thumbnail file path
+ * @param {number} params.timeOffset - Time offset in seconds (default: 1)
+ * @param {number} params.width - Thumbnail width (default: 320)
+ * @param {number} params.height - Thumbnail height (default: 180)
+ * @returns {Promise<Object>} - Promise resolving to thumbnail generation result
+ */
+export const handleGenerateThumbnail = async (event, { 
+  inputPath, 
+  outputPath, 
+  timeOffset = 1, 
+  width = 320, 
+  height = 180 
+}) => {
+  try {
+    logDebug('Starting thumbnail generation', ERROR_CONTEXTS.VIDEO, { 
+      inputPath, 
+      outputPath, 
+      timeOffset, 
+      width, 
+      height 
+    });
+
+    // Validate input file exists
+    if (!fs.existsSync(inputPath)) {
+      throw new Error('Input video file does not exist');
+    }
+
+    // Ensure output directory exists
+    const outputDir = path.dirname(outputPath);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+      logDebug('Created output directory', ERROR_CONTEXTS.VIDEO, { outputDir });
+    }
+
+    // Build FFmpeg command for thumbnail generation
+    const ffmpegCommand = [
+      `"${ffmpeg}"`,
+      '-i', `"${inputPath}"`,
+      '-ss', timeOffset.toString(),
+      '-vframes', '1',
+      '-vf', `scale=${width}:${height}`,
+      '-f', 'image2',
+      '-y', // Overwrite output file
+      `"${outputPath}"`
+    ].join(' ');
+
+    logDebug('Executing FFmpeg thumbnail command', ERROR_CONTEXTS.VIDEO, { ffmpegCommand });
+
+    // Execute FFmpeg command
+    const { stdout, stderr } = await execAsync(ffmpegCommand);
+
+    logDebug('FFmpeg thumbnail command completed', ERROR_CONTEXTS.VIDEO, { stdout, stderr });
+
+    // Verify output file was created
+    if (!fs.existsSync(outputPath)) {
+      throw new Error('Thumbnail file was not created');
+    }
+
+    const outputStats = fs.statSync(outputPath);
+    if (outputStats.size === 0) {
+      throw new Error('Thumbnail file is empty');
+    }
+
+    logSuccess('Thumbnail generation completed successfully', ERROR_CONTEXTS.VIDEO, { 
+      inputPath, 
+      outputPath, 
+      size: outputStats.size 
+    });
+
+    return {
+      success: true,
+      outputPath,
+      size: outputStats.size,
+      width,
+      height
+    };
+
+  } catch (error) {
+    return handleIPCError(error, 'generate-thumbnail');
+  }
+};

@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   trimVideo: (params) => {
     return ipcRenderer.invoke('trim-video', params);
   },
+  generateThumbnail: (params) => {
+    return ipcRenderer.invoke('generate-thumbnail', params);
+  },
   
   // Recording operations
   getRecordingSources: (options) => {

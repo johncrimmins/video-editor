@@ -31,6 +31,7 @@ export const registerAllHandlers = () => {
   ipcMain.handle('trim-video', videoHandlers.handleTrimVideo);
   ipcMain.handle('get-video-metadata', videoHandlers.handleGetVideoMetadata);
   ipcMain.handle('convert-video', videoHandlers.handleConvertVideo);
+  ipcMain.handle('generate-thumbnail', videoHandlers.handleGenerateThumbnail);
 
   console.log('✅ All IPC handlers registered successfully');
 };

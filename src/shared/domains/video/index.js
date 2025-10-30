@@ -5,4 +5,5 @@
 
 export * from './videoUtils';
 export * from './videoService';
+export * from './thumbnailService';
 
