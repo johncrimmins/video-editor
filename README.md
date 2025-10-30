@@ -2,7 +2,7 @@
 
 > A modern desktop video editor built with Electron, React 19, and FFmpeg. Create, edit, and export professional videos with an intuitive timeline interface.
 
-![FrameSmith Screenshot](https://via.placeholder.com/800x500/1a1a1a/6366f1?text=FrameSmith+Desktop+Video+Editor)
+![FrameSmith Screenshot](https://drive.google.com/file/d/16BYD9hPmGCe7idiXhyMTI1OONkLCZzX2/view?usp=sharing)
 
 ## ✨ Features
 
@@ -12,18 +12,27 @@
 - **Real-time Preview**: HTML5 video player with custom app:// protocol
 - **Precise Trimming**: Set in/out points with live preview
 - **Native Recording**: Screen capture and webcam recording with FFmpeg
+- **Project Management**: Organize and manage video projects with thumbnails
+
+### 🤖 AI-Powered Assistance
+- **AI Script Assistant**: Built-in OpenAI integration for code generation
+- **Smart Chat Interface**: Modal-based AI assistant accessible from header
+- **Script Writing Support**: Generate production-ready code snippets
+- **Secure API Integration**: OpenAI API key management with environment variables
 
 ### 🎨 Modern Interface
 - **Dark Theme**: Sleek purple-accented dark theme
 - **Responsive Layout**: CSS Grid-based responsive design
 - **Collapsible Sidebar**: Clean navigation with context-based routing
 - **Performance Optimized**: React 19 with strategic memoization
+- **Drag & Drop Support**: Intuitive file import across all screens
 
 ### 🔧 Technical Excellence
 - **Native Desktop App**: Built with Electron 39 for cross-platform support
 - **Modern React**: React 19 with hooks and performance optimizations
 - **FFmpeg Integration**: Professional-grade video processing
 - **Secure Architecture**: Context isolation and secure IPC communication
+- **Thumbnail Generation**: Automatic video thumbnail creation with FFmpeg
 
 ## 🚀 Quick Start
 
@@ -31,13 +40,14 @@
 - **Node.js** 18+ (LTS recommended)
 - **macOS** (primary platform, Linux support available)
 - **FFmpeg** (bundled via ffmpeg-static)
+- **OpenAI API Key** (optional, for AI assistant features)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/framesmith.git
-   cd framesmith
+   git clone https://github.com/johncrimmins/video-editor.git
+   cd video-editor
    ```
 
 2. **Install dependencies**
@@ -45,12 +55,18 @@
    npm install
    ```
 
-3. **Start development server**
+3. **Set up environment variables** (optional, for AI features)
+   ```bash
+   # Create .env.local file in project root
+   echo "OPENAI_API_KEY=your_api_key_here" > .env.local
+   ```
+
+4. **Start development server**
    ```bash
    npm start
    ```
 
-4. **Build for production**
+5. **Build for production**
    ```bash
    npm run make
    ```
@@ -104,10 +120,17 @@ src/
 ### Basic Workflow
 
 1. **Launch FrameSmith** - Double-click the app icon
-2. **Import Video** - Click "✂️ Editor" → "Select Video File"
+2. **Import Video** - Drag & drop files or use "📁 Projects" → "Select Video Files"
 3. **Edit Timeline** - Drag trim handles to set in/out points
 4. **Preview Changes** - Watch real-time preview of your edits
 5. **Export Video** - Save your edited video as MP4
+
+### AI Assistant
+
+1. **Open AI Chat** - Click the 💬 button in the top-right header
+2. **Describe Your Need** - Type what script or code you need help with
+3. **Get AI Response** - Receive production-ready code snippets with explanations
+4. **Copy & Use** - Copy the generated code directly to your project
 
 ### Recording Features
 
@@ -122,6 +145,13 @@ src/
 - **Real-time Preview**: See changes instantly in the video player
 - **Precise Control**: Use the timeline ruler for frame-accurate editing
 - **Zoom Controls**: Zoom in/out for detailed editing
+
+### Project Management
+
+- **Drag & Drop Import**: Drop video files directly onto the Projects screen
+- **Thumbnail Previews**: See video thumbnails for easy project identification
+- **Project Organization**: Keep track of all your video projects in one place
+- **Quick Editor Access**: Open any project directly in the timeline editor
 
 ## 🔧 Development
 
@@ -172,8 +202,8 @@ src/
 
 ### Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/videocraft/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/videocraft/discussions)
+- **Issues**: [GitHub Issues](https://github.com/johncrimmins/video-editor/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/johncrimmins/video-editor/discussions)
 - **Documentation**: Check the `/docs` folder for detailed guides
 
 ## 🛣️ Roadmap
@@ -184,6 +214,9 @@ src/
 - [x] Timeline editing with trim handles
 - [x] Native screen recording
 - [x] Real-time preview
+- [x] Drag & drop file import
+- [x] Project management with thumbnails
+- [x] AI script assistant integration
 - [ ] Video export functionality (in progress)
 
 ### Upcoming Features
@@ -193,7 +226,8 @@ src/
 - [ ] **Effects**: Color correction and basic filters
 - [ ] **Audio Editing**: Audio track management and mixing
 - [ ] **Keyboard Shortcuts**: Professional editing shortcuts
-- [ ] **Project Management**: Save and load editing projects
+- [ ] **Advanced AI Features**: Video analysis and automated editing suggestions
+- [ ] **Cloud Integration**: Sync projects across devices
 
 ## 🤝 Contributing
 
