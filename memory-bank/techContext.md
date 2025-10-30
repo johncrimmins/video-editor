@@ -1,4 +1,4 @@
-# Technical Context: Clipforge MVP
+# Technical Context: FrameSmith MVP
 
 ## Technology Stack
 

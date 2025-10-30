@@ -1,4 +1,4 @@
-# Product Context: Clipforge MVP
+# Product Context: FrameSmith MVP
 
 ## Why This Project Exists
 Building a desktop video editing MVP to validate the concept of a lightweight, native video editor that handles basic editing tasks without the complexity of professional tools.

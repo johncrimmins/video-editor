@@ -1,7 +1,7 @@
-# Project Brief: Clipforge MVP
+# Project Brief: FrameSmith MVP
 
 ## Project Overview
-Desktop video editing MVP called "Clipforge" - a native desktop application for basic video editing tasks. Built with modern React 19, Electron 39, and optimized for performance.
+Desktop video editing MVP called "FrameSmith" - a native desktop application for basic video editing tasks. Built with modern React 19, Electron 39, and optimized for performance.
 
 ## Core Requirements ✅ COMPLETE
 1. **Desktop App Launch** - Electron-based native desktop application

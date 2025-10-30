@@ -53,3 +53,4 @@ const TimelineEditorContent = ({ onDeleteClip }) => {
 };
 
 export default TimelineEditorContent;
+

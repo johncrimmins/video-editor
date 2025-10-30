@@ -1,8 +1,8 @@
 {
-  "name": "my-video-editor",
-  "productName": "my-video-editor",
+  "name": "framesmith",
+  "productName": "FrameSmith",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A modern desktop video editor built with Electron, React 19, and FFmpeg. Create, edit, and export professional videos with an intuitive timeline interface.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -11,7 +11,18 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "keywords": [],
+  "keywords": [
+    "video-editor",
+    "desktop-app",
+    "electron",
+    "react",
+    "ffmpeg",
+    "timeline",
+    "video-editing",
+    "screen-recording",
+    "video-processing",
+    "media-editor"
+  ],
   "author": "johncrimmins",
   "license": "MIT",
   "devDependencies": {

@@ -1,4 +1,4 @@
-# System Patterns: Clipforge MVP
+# System Patterns: FrameSmith MVP
 
 ## Architecture Overview
 Desktop application built with Electron 39, React 19, and Konva.js 10, following modern best practices for performance and maintainability.

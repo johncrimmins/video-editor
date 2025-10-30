@@ -1,4 +1,4 @@
-# Active Context: Clipforge MVP
+# Active Context: FrameSmith MVP
 
 ## Current Status
 **Phase**: Performance Optimization & Architecture Enhancement Complete - December 2024
@@ -123,6 +123,8 @@ TimelineScreen (with video) → TimelineEditorScreen (full editing)
   - ✅ Process management and cleanup
   - ✅ FFmpeg error handling refinement
   - ✅ UI improvements with screen thumbnails and source previews
+  - ✅ Phase 1: Dead code removal (200+ lines removed)
+  - ✅ Phase 3: Component refactoring with context management
 - **Technical Benefits**:
   - 100% native implementation using Electron capabilities
   - Proper duration extraction from FFmpeg metadata
@@ -130,6 +132,8 @@ TimelineScreen (with video) → TimelineEditorScreen (full editing)
   - Consistent data flow with existing video import system
   - Native performance without browser limitations
   - Enhanced UX with visual source selection using Electron's desktopCapturer
+  - Modern React architecture with context-driven state management
+  - Reusable recording components with performance optimization
 
 ### Phase 9: Performance Optimization & Architecture Enhancement ✅ COMPLETE (December 2024)
 - **React 19 Performance Patterns**: Implemented strategic memoization throughout
