@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { VideoElement } from '../../../shared/ui';
 
-const VideoPreview = memo(({ videoFile, trimPoints }) => {
+const VideoPreview = memo(({ videoFile, trimPoints, videoRef }) => {
   if (!videoFile) {
     return null;
   }
@@ -14,6 +14,7 @@ const VideoPreview = memo(({ videoFile, trimPoints }) => {
           <VideoElement 
             videoFile={videoFile}
             trimPoints={trimPoints}
+            videoRef={videoRef}
             onError={(e) => {
               // Silently handle video errors
             }}
@@ -44,4 +45,3 @@ const VideoPreview = memo(({ videoFile, trimPoints }) => {
 VideoPreview.displayName = 'VideoPreview';
 
 export default VideoPreview;
-

@@ -7,17 +7,20 @@ import { convertToFileUrl } from '../domains/video';
  * @param {Object} props
  * @param {Object} props.videoFile - Video file object with path property
  * @param {Object} props.trimPoints - Optional trim points to sync video currentTime
+ * @param {Object} props.videoRef - Optional external ref for controlling video element
  * @param {Object} props.style - Additional inline styles for video element
  * @param {Function} props.onError - Error handler callback
  */
 const VideoElement = ({ 
   videoFile, 
   trimPoints,
+  videoRef: externalRef,
   style = {},
   onError,
   ...props
 }) => {
-  const videoRef = useRef(null);
+  const internalRef = useRef(null);
+  const videoRef = externalRef || internalRef;
 
   // Get video URL
   const videoUrl = videoFile ? convertToFileUrl(videoFile.path) : null;
@@ -27,7 +30,7 @@ const VideoElement = ({
     if (videoRef.current && trimPoints && trimPoints.inTime !== undefined) {
       videoRef.current.currentTime = trimPoints.inTime;
     }
-  }, [trimPoints?.inTime]);
+  }, [trimPoints?.inTime, videoRef]);
 
   const baseStyles = {
     width: '100%',
@@ -54,4 +57,3 @@ const VideoElement = ({
 };
 
 export default VideoElement;
-

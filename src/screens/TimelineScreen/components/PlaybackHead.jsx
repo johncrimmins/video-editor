@@ -1,5 +1,6 @@
 import React, { memo, useState, useCallback } from 'react';
 import { Group, Circle, Line } from 'react-konva';
+import { darkTheme } from '../../../shared/ui/darkTheme';
 
 /**
  * PlaybackHead - Beautiful draggable playback indicator
@@ -21,6 +22,7 @@ const PlaybackHead = memo(({
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
+    document.body.style.cursor = 'grabbing';
   }, []);
 
   const handleDragMove = useCallback((e) => {
@@ -30,22 +32,35 @@ const PlaybackHead = memo(({
 
   const handleDragEnd = useCallback((e) => {
     setIsDragging(false);
+    document.body.style.cursor = 'default';
     const newX = e.target.x();
     onDragEnd?.(newX);
   }, [onDragEnd]);
+  
+  const handleMouseEnter = useCallback(() => {
+    setIsHover(true);
+    document.body.style.cursor = 'grab';
+  }, []);
+  
+  const handleMouseLeave = useCallback(() => {
+    setIsHover(false);
+    document.body.style.cursor = 'default';
+  }, []);
 
   // Color changes based on state
-  const handleColor = isDragging || isHover ? '#818cf8' : '#6366f1'; // primaryLight : primary
+  const handleColor = isDragging || isHover ? darkTheme.primaryLight : darkTheme.primary;
   const scale = isDragging ? 1.2 : (isHover ? 1.1 : 1);
+  const lineOpacity = isDragging || isHover ? 1 : 0.9;
 
   return (
     <Group>
       {/* Vertical line */}
       <Line
         points={[x, 0, x, timelineHeight]}
-        stroke="#6366f1"
+        stroke={darkTheme.primary}
         strokeWidth={2}
         listening={false}
+        opacity={lineOpacity}
       />
       
       {/* Top handle - draggable circle */}
@@ -54,7 +69,7 @@ const PlaybackHead = memo(({
         y={8}
         radius={8}
         fill={handleColor}
-        stroke="#ffffff"
+        stroke={darkTheme.text}
         strokeWidth={1}
         draggable
         dragBoundFunc={(pos) => ({
@@ -64,10 +79,10 @@ const PlaybackHead = memo(({
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
-        shadowColor="rgba(0, 0, 0, 0.5)"
-        shadowBlur={4}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        shadowColor="rgba(0, 0, 0, 0.6)"
+        shadowBlur={6}
         shadowOffset={{ x: 0, y: 2 }}
         scaleX={scale}
         scaleY={scale}
@@ -78,7 +93,7 @@ const PlaybackHead = memo(({
         x={x}
         y={8}
         radius={4}
-        fill="#ffffff"
+        fill={darkTheme.text}
         listening={false}
       />
     </Group>
@@ -97,4 +112,3 @@ const PlaybackHead = memo(({
 PlaybackHead.displayName = 'PlaybackHead';
 
 export default PlaybackHead;
-

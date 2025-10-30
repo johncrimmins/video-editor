@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { EditorScreen } from '../../../shared/layouts';
 import TimelineCanvas from './TimelineCanvas';
 import VideoPreview from './VideoPreview';
@@ -12,6 +12,14 @@ import { useTimelineContext } from '../../../contexts/TimelineContext';
  */
 const TimelineEditorContent = ({ onDeleteClip }) => {
   const { videoFile, trimPoints, updateTrimPoint, handleApplyTrim } = useTimelineContext();
+  const videoRef = useRef(null);
+  
+  // Handle time updates from scrubbing
+  const handleTimeUpdate = useCallback((newTime) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
+  }, []);
   
   return (
     <EditorScreen>
@@ -20,7 +28,11 @@ const TimelineEditorContent = ({ onDeleteClip }) => {
           <>
             {/* Video Preview Panel - Top - Takes available space */}
             <div className="min-h-0 p-md bg-background overflow-hidden">
-              <VideoPreview videoFile={videoFile} trimPoints={trimPoints} />
+              <VideoPreview 
+                videoFile={videoFile} 
+                trimPoints={trimPoints}
+                videoRef={videoRef}
+              />
             </div>
             
             {/* Timeline Editor - Bottom - Natural height */}
@@ -28,7 +40,8 @@ const TimelineEditorContent = ({ onDeleteClip }) => {
               <TimelineCanvas 
                 videoFile={videoFile} 
                 trimPoints={trimPoints} 
-                updateTrimPoint={updateTrimPoint} 
+                updateTrimPoint={updateTrimPoint}
+                onTimeUpdate={handleTimeUpdate}
               />
               
               {/* Control Panel */}
@@ -53,4 +66,3 @@ const TimelineEditorContent = ({ onDeleteClip }) => {
 };
 
 export default TimelineEditorContent;
-

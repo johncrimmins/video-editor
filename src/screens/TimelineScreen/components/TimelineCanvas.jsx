@@ -4,6 +4,7 @@ import { positionToTime, timeToPosition } from '../../../shared/domains/timeline
 import ClipBlock from './ClipBlock';
 import PlaybackHead from './PlaybackHead';
 import { Button } from '../../../shared/ui';
+import { darkTheme } from '../../../shared/ui/darkTheme';
 
 /**
  * TimelineCanvas - Main timeline editor with Konva canvas
@@ -14,7 +15,7 @@ import { Button } from '../../../shared/ui';
  * - Draggable playback head for scrubbing
  * - Zoom controls
  */
-const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
+const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint, onTimeUpdate }) => {
   const [dimensions, setDimensions] = useState({ width: 1200, height: 120 });
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,14 +42,16 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
     const constrainedX = Math.max(0, Math.min(dimensions.width, newX));
     const newTime = positionToTime(constrainedX, videoFile.duration, dimensions.width);
     setCurrentTime(newTime);
-  }, [dimensions.width, videoFile?.duration]);
+    onTimeUpdate?.(newTime); // Update video element
+  }, [dimensions.width, videoFile?.duration, onTimeUpdate]);
 
   const handlePlaybackHeadDragEnd = useCallback((newX) => {
     if (!videoFile?.duration) return;
     const constrainedX = Math.max(0, Math.min(dimensions.width, newX));
     const newTime = positionToTime(constrainedX, videoFile.duration, dimensions.width);
     setCurrentTime(newTime);
-  }, [dimensions.width, videoFile?.duration]);
+    onTimeUpdate?.(newTime); // Update video element
+  }, [dimensions.width, videoFile?.duration, onTimeUpdate]);
 
   // Playback controls
   const handlePlayPause = useCallback(() => {
@@ -89,7 +92,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
           y={5}
           text={formatTime(i)}
           fontSize={10}
-          fill="#a0a0a0"
+          fill={darkTheme.textSecondary}
           align="center"
           width={40}
         />
@@ -100,7 +103,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
         <Line
           key={`marker-line-${i}`}
           points={[x, 30, x, 40]}
-          stroke="rgba(255, 255, 255, 0.2)"
+          stroke="rgba(255, 255, 255, 0.15)"
           strokeWidth={1}
         />
       );
@@ -182,7 +185,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
       
       {/* Timeline Canvas */}
       <div ref={containerRef} className="flex justify-center items-center p-md bg-background-secondary">
-        <div className="relative">
+        <div className="relative" style={{ cursor: 'default' }}>
           <Stage width={dimensions.width} height={dimensions.height}>
             <Layer>
               {/* Timeline ruler background */}
@@ -191,7 +194,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
                 y={0}
                 width={dimensions.width}
                 height={50}
-                fill="#1a1a1a"
+                fill={darkTheme.backgroundSecondary}
               />
               
               {/* Time markers */}
@@ -200,7 +203,7 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
               {/* Timeline base line */}
               <Line
                 points={[0, 50, dimensions.width, 50]}
-                stroke="#2a2a2a"
+                stroke={darkTheme.border}
                 strokeWidth={2}
               />
               
@@ -238,4 +241,3 @@ const TimelineCanvas = ({ videoFile, trimPoints, updateTrimPoint }) => {
 };
 
 export default TimelineCanvas;
-
