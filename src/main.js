@@ -206,7 +206,6 @@ const setupIpcHandlers = () => {
 
   // Handle generate thumbnail
   ipcMain.handle('generate-thumbnail', async (event, { inputPath, outputPath, timeOffset = 1, width = 320, height = 180 }) => {
-    console.log('🖼️ Main Process IPC: generate-thumbnail called with params:', { inputPath, outputPath, timeOffset, width, height });
     try {
       if (!inputPath || !outputPath) {
         throw new Error('Invalid thumbnail parameters');
@@ -221,14 +220,11 @@ const setupIpcHandlers = () => {
       const outputDir = path.dirname(outputPath);
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
-        console.log('🖼️ Main Process IPC: Created output directory:', outputDir);
       }
 
       // Use system FFmpeg for thumbnail generation
       const systemFfmpeg = '/opt/homebrew/bin/ffmpeg';
       const command = `"${systemFfmpeg}" -i "${inputPath}" -ss ${timeOffset} -vframes 1 -vf "scale=${width}:${height}" -f image2 -y "${outputPath}"`;
-      
-      console.log('🖼️ Main Process IPC: Executing FFmpeg thumbnail command:', command);
       
       // Execute FFmpeg command
       await execAsync(command);
@@ -242,8 +238,6 @@ const setupIpcHandlers = () => {
       if (outputStats.size === 0) {
         throw new Error('Thumbnail file is empty');
       }
-
-      console.log('🖼️ Main Process IPC: Thumbnail generated successfully:', { outputPath, size: outputStats.size });
       
       return { 
         success: true, 
@@ -253,7 +247,6 @@ const setupIpcHandlers = () => {
         height
       };
     } catch (error) {
-      console.error('🖼️ Main Process IPC: Error in generate-thumbnail:', error);
       throw error;
     }
   });

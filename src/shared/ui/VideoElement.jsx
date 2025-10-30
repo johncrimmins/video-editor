@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { borderRadius } from './darkTheme';
 import { convertToFileUrl } from '../domains/video';
 
@@ -22,8 +22,34 @@ const VideoElement = ({
   const internalRef = useRef(null);
   const videoRef = externalRef || internalRef;
 
-  // Get video URL
-  const videoUrl = videoFile ? convertToFileUrl(videoFile.path) : null;
+  // Resolve video URL
+  // - For dropped files, prefer a blob URL from the File object
+  // - For picker/native files with real paths, use Electron app:// protocol
+  const [objectUrl, setObjectUrl] = useState(null);
+
+  useEffect(() => {
+    if (videoFile?.file instanceof File) {
+      const url = URL.createObjectURL(videoFile.file);
+      setObjectUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+        setObjectUrl(null);
+      };
+    }
+    // Cleanup when switching from object URL to file path
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoFile?.file]);
+
+  const videoUrl = useMemo(() => {
+    if (!videoFile) return null;
+    if (objectUrl) return objectUrl;
+    return convertToFileUrl(videoFile.path);
+  }, [videoFile, objectUrl]);
 
   // Update video currentTime when trim points change
   useEffect(() => {

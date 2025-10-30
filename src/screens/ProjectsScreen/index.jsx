@@ -12,15 +12,6 @@ const ProjectsScreen = () => {
   const { navigate } = useNavigation();
 
   const handleFilesImported = useCallback((files) => {
-    console.log('📁 ProjectsScreen: Files imported:', files);
-    console.log('📁 ProjectsScreen: File details:', files.map(f => ({
-      name: f.name,
-      path: f.path,
-      size: f.size,
-      duration: f.duration,
-      type: f.type
-    })));
-    
     // Add imported files to projects with additional metadata
     const newProjects = files.map(file => ({
       ...file,
@@ -29,24 +20,15 @@ const ProjectsScreen = () => {
       lastModified: new Date().toISOString()
     }));
     
-    console.log('📁 ProjectsScreen: New projects created:', newProjects);
-    setProjects(prevProjects => {
-      const updated = [...prevProjects, ...newProjects];
-      console.log('📁 ProjectsScreen: Updated projects list:', updated);
-      return updated;
-    });
+    setProjects(prevProjects => [...prevProjects, ...newProjects]);
   }, []);
 
   const handleOpenInEditor = useCallback((file) => {
-    console.log('📁 ProjectsScreen: Opening file in editor:', file);
-    
     // Navigate to editor with the selected file
     navigate('editor', { videoFile: file });
   }, [navigate]);
 
   const handleDeleteFile = useCallback((fileToDelete) => {
-    console.log('📁 ProjectsScreen: Deleting file:', fileToDelete);
-    
     setProjects(prevProjects => 
       prevProjects.filter(project => project.id !== fileToDelete.id)
     );

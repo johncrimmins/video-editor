@@ -20,65 +20,47 @@ const ProjectFileCard = ({
 
   // Generate thumbnail when component mounts
   useEffect(() => {
-    console.log('🎬 ProjectFileCard: useEffect triggered, file:', file);
     if (file?.path && !file?.isDropped) {
-      console.log('🎬 ProjectFileCard: File path found, generating thumbnail:', file.path);
       generateThumbnail();
     } else if (file?.isDropped && file?.file) {
-      console.log('🎬 ProjectFileCard: Dropped file detected, generating thumbnail from File object');
       generateThumbnailFromDroppedFile();
-    } else {
-      console.log('🎬 ProjectFileCard: No valid file path or dropped file found');
     }
   }, [file?.path, file?.isDropped, file?.file]);
 
   const generateThumbnail = async () => {
-    console.log('🎬 ProjectFileCard: generateThumbnail called for file:', file);
     if (!file?.path) {
-      console.log('🎬 ProjectFileCard: No file path, returning early');
       return;
     }
 
     try {
-      console.log('🎬 ProjectFileCard: Starting thumbnail generation');
       setIsGeneratingThumbnail(true);
       setThumbnailError(null);
 
       // Create thumbnail path in temp directory
       const thumbnailPath = `${file.path.replace(/\.[^/.]+$/, '')}_thumb.jpg`;
-      console.log('🎬 ProjectFileCard: Thumbnail path:', thumbnailPath);
       
-      console.log('🎬 ProjectFileCard: Calling generateDefaultThumbnail');
       const result = await generateDefaultThumbnail(file.path, thumbnailPath);
-      console.log('🎬 ProjectFileCard: generateDefaultThumbnail result:', result);
       
       if (result.success) {
         // Convert to app:// protocol URL for display (Electron security)
         const thumbnailUrl = `app://${result.outputPath}`;
-        console.log('🎬 ProjectFileCard: Setting thumbnail URL:', thumbnailUrl);
         setThumbnail(thumbnailUrl);
       } else {
-        console.error('🎬 ProjectFileCard: Thumbnail generation failed:', result);
         throw new Error('Failed to generate thumbnail');
       }
     } catch (error) {
-      console.error('🎬 ProjectFileCard: Thumbnail generation error:', error);
       setThumbnailError('Failed to generate thumbnail');
     } finally {
-      console.log('🎬 ProjectFileCard: Thumbnail generation completed');
       setIsGeneratingThumbnail(false);
     }
   };
 
   const generateThumbnailFromDroppedFile = async () => {
-    console.log('🎬 ProjectFileCard: generateThumbnailFromDroppedFile called for dropped file:', file);
     if (!file?.file) {
-      console.log('🎬 ProjectFileCard: No dropped file object, returning early');
       return;
     }
 
     try {
-      console.log('🎬 ProjectFileCard: Starting thumbnail generation from dropped file');
       setIsGeneratingThumbnail(true);
       setThumbnailError(null);
 
@@ -114,7 +96,6 @@ const ProjectFileCard = ({
       
       // Convert canvas to data URL
       const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.8);
-      console.log('🎬 ProjectFileCard: Generated thumbnail from dropped file:', thumbnailUrl.substring(0, 50) + '...');
       
       setThumbnail(thumbnailUrl);
       
@@ -122,10 +103,8 @@ const ProjectFileCard = ({
       URL.revokeObjectURL(video.src);
       
     } catch (error) {
-      console.error('🎬 ProjectFileCard: Error generating thumbnail from dropped file:', error);
       setThumbnailError('Failed to generate thumbnail');
     } finally {
-      console.log('🎬 ProjectFileCard: Thumbnail generation from dropped file completed');
       setIsGeneratingThumbnail(false);
     }
   };
@@ -171,8 +150,6 @@ const ProjectFileCard = ({
               src={thumbnail} 
               alt={`Thumbnail for ${file.name}`}
               className="w-full h-full object-cover"
-              onLoad={() => console.log('🎬 ProjectFileCard: Thumbnail loaded successfully:', thumbnail)}
-              onError={(e) => console.error('🎬 ProjectFileCard: Thumbnail load error:', e, 'URL:', thumbnail)}
             />
           ) : thumbnailError ? (
             <div className="flex items-center justify-center h-full">

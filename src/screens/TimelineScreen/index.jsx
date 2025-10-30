@@ -2,7 +2,7 @@ import React from 'react';
 import { EditorScreen } from '../../shared/layouts';
 import EmptyEditorScreen from './components/EmptyEditorScreen';
 import TimelineEditorScreen from './components/TimelineEditorScreen';
-import ImportInterface from './components/ImportInterface';
+import TimelineImportInterface from './components/TimelineImportInterface';
 
 /**
  * TimelineScreen - Simplified component that goes directly from import to editor
@@ -21,12 +21,12 @@ const TimelineScreen = ({ videoFile, onDeleteClip, onVideoImported }) => {
     isRecorded: videoFile?.isRecorded
   });
   
-  // If no video file, show import interface
+  // If no video file, show new import interface (drag & drop + picker)
   if (!videoFile) {
     console.log('🎬 TimelineScreen: No video file, showing import interface');
     return (
       <EditorScreen>
-        <ImportInterface onVideoSelected={onVideoImported} />
+        <TimelineImportInterface onVideoSelected={onVideoImported} />
       </EditorScreen>
     );
   }

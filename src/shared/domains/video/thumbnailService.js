@@ -14,20 +14,15 @@
  * @returns {Promise<Object>} - Promise resolving to thumbnail generation result
  */
 export const generateThumbnail = async (params) => {
-  console.log('🎬 thumbnailService.js: generateThumbnail called with params:', params);
   try {
     if (!window.electronAPI || !window.electronAPI.generateThumbnail) {
-      console.error('🎬 thumbnailService.js: Electron API not available');
       throw new Error('Electron API not available. Make sure preload script is loaded.');
     }
     
-    console.log('🎬 thumbnailService.js: Calling electronAPI.generateThumbnail');
     const result = await window.electronAPI.generateThumbnail(params);
-    console.log('🎬 thumbnailService.js: generateThumbnail result:', result);
     
     return result;
   } catch (error) {
-    console.error('🎬 thumbnailService.js: Generate thumbnail error:', error);
     throw error;
   }
 };
@@ -95,7 +90,6 @@ export const generateMultipleThumbnails = async (inputPath, outputDir, count = 3
     
     return thumbnails;
   } catch (error) {
-    console.error('🎬 thumbnailService.js: Generate multiple thumbnails error:', error);
     throw error;
   }
 };

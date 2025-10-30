@@ -15,12 +15,9 @@ const DragDropZone = ({ onFilesImported, className = '' }) => {
   // Extract duration from dropped file using HTML5 video element
   const extractDurationFromDroppedFile = async (file) => {
     try {
-      console.log('📁 DragDropZone: Extracting duration from dropped file:', file.name);
       const duration = await extractDurationFromFile(file);
-      console.log('📁 DragDropZone: Extracted duration:', duration);
       return duration;
     } catch (error) {
-      console.error('📁 DragDropZone: Error extracting duration:', error);
       return 0; // Default duration if extraction fails
     }
   };
@@ -57,18 +54,13 @@ const DragDropZone = ({ onFilesImported, className = '' }) => {
     );
 
     if (videoFiles.length === 0) {
-      console.warn('📁 DragDropZone: No valid video files found in drop');
       return;
     }
-
-    console.log('📁 DragDropZone: Processing dropped files:', videoFiles.length);
 
     // Process each video file directly from the dropped files
     const processedFiles = [];
     for (const file of videoFiles) {
       try {
-        console.log('📁 DragDropZone: Processing dropped file:', file.name);
-        
         // Extract duration from the dropped file using HTML5 video element
         const duration = await extractDurationFromDroppedFile(file);
         
@@ -85,15 +77,13 @@ const DragDropZone = ({ onFilesImported, className = '' }) => {
           file: file // Keep reference to original File object
         };
         
-        console.log('📁 DragDropZone: Processed file:', processedFile);
         processedFiles.push(processedFile);
       } catch (error) {
-        console.error('📁 DragDropZone: Error processing dropped file:', error);
+        // Silently handle errors for dropped files
       }
     }
 
     if (processedFiles.length > 0 && onFilesImported) {
-      console.log('📁 DragDropZone: Calling onFilesImported with:', processedFiles);
       onFilesImported(processedFiles);
     }
   }, [onFilesImported]);
